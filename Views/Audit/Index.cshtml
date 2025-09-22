@@ -1,0 +1,30 @@
+﻿@model IEnumerable<PassItOnAcademy.Models.AuditEntry>
+@{
+    ViewData["Title"] = "Audit";
+}
+<h1 class="text-2xl font-extrabold mb-4">Audit</h1>
+<div class="overflow-hidden rounded-xl border bg-white">
+    <table class="min-w-full divide-y">
+        <thead class="bg-zinc-50">
+            <tr>
+                <th class="px-4 py-2 text-left text-xs font-semibold">When</th>
+                <th class="px-4 py-2 text-left text-xs font-semibold">Action</th>
+                <th class="px-4 py-2 text-left text-xs font-semibold">Entity</th>
+                <th class="px-4 py-2 text-left text-xs font-semibold">By</th>
+                <th class="px-4 py-2 text-left text-xs font-semibold">Reason</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y">
+            @foreach (var a in Model)
+            {
+                <tr>
+                    <td class="px-4 py-2 text-sm">@a.CreatedUtc.ToLocalTime()</td>
+                    <td class="px-4 py-2 text-sm">@a.Action</td>
+                    <td class="px-4 py-2 text-sm">@a.EntityType #@a.EntityId</td>
+                    <td class="px-4 py-2 text-sm">@a.PerformedByUser?.FullName ?? a.PerformedByUserId</td>
+                    <td class="px-4 py-2 text-sm">@a.Reason</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

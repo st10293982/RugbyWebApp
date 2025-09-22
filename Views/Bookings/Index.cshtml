@@ -1,0 +1,142 @@
+﻿@model IEnumerable<PassItOnAcademy.Models.Booking>
+@using PassItOnAcademy.Models
+@{
+    ViewData["Title"] = "Bookings";
+    string[] statuses = new[] { nameof(BookingStatus.Booked), nameof(BookingStatus.Completed), nameof(BookingStatus.Cancelled) };
+}
+
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Bookings</h1>
+            <p class="text-sm text-zinc-500">Filter by session, date, status, or search by name/phone/email.</p>
+        </div>
+        <a asp-controller="Sessions" asp-action="Index"
+           class="inline-flex items-center rounded-xl bg-[#FFD200] px-4 py-2 text-sm font-semibold text-black hover:brightness-95">
+            Go to Sessions
+        </a>
+    </div>
+
+    @if (TempData["Msg"] is string msg && !string.IsNullOrWhiteSpace(msg))
+    {
+        <div class="rounded-xl border border-zinc-200 bg-white p-3 text-sm text-zinc-800 shadow-sm">@msg</div>
+    }
+
+    <!-- Filters -->
+    <form method="get" class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+            <div>
+                <label class="block text-xs font-medium text-zinc-600">Session ID</label>
+                <input type="number" name="sessionId" value="@(Context.Request.Query["sessionId"])" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-600">From (local)</label>
+                <input type="datetime-local" name="from" value="@(Context.Request.Query["from"])" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-600">To (local)</label>
+                <input type="datetime-local" name="to" value="@(Context.Request.Query["to"])" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-600">Status</label>
+                <select name="status" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm">
+                    <option value="">Any</option>
+                    @foreach (var s in statuses)
+                    {
+                        var selected = string.Equals(Context.Request.Query["status"], s, System.StringComparison.OrdinalIgnoreCase) ? "selected" : "";
+                        <option value="@s" selected="@selected">@s</option>
+                    }
+                </select>
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-xs font-medium text-zinc-600">Search (name / phone / email)</label>
+                <input type="text" name="q" value="@(Context.Request.Query["q"])" placeholder="e.g. Zak, 082..., name@domain"
+                       class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+            </div>
+        </div>
+        <div class="mt-4 flex items-center gap-3">
+            <button type="submit"
+                    class="inline-flex items-center rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-900">
+                Apply
+            </button>
+            <a asp-action="Index" class="rounded-xl border border-zinc-300 px-4 py-2 text-sm hover:bg-zinc-50">Reset</a>
+        </div>
+    </form>
+
+    <!-- Table -->
+    <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+        <table class="min-w-full divide-y divide-zinc-200">
+            <thead class="bg-zinc-50">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Booking</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Customer</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Session</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Created</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Payments</th>
+                    <th class="px-4 py-3"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200">
+                @foreach (var b in Model)
+                {
+                    <tr class="hover:bg-zinc-50/60">
+                        <td class="px-4 py-3">
+                            <div class="text-sm font-semibold">#@b.Id</div>
+                            <div>
+                                @{
+                                    var badgeClass = b.Status == BookingStatus.Booked
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : b.Status == BookingStatus.Completed
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-zinc-200 text-zinc-800";
+                                }
+                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold @badgeClass">
+                                    @b.Status
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            <div class="font-medium">@b.User?.FullName ?? b.User?.Email ?? "—"</div>
+                            <div class="text-xs text-zinc-500">@b.User?.PhoneNumber</div>
+                            <div class="text-xs text-zinc-500">@b.User?.Email</div>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            <div class="font-medium">@b.Session?.Title</div>
+                            <div class="text-xs text-zinc-500">ID: @b.SessionId · @b.Session?.Level</div>
+                            @if (b.Session != null)
+                            {
+                                var local = b.Session.StartUtc.ToLocalTime();
+                                <div class="text-xs text-zinc-500">@local.ToString("yyyy-MM-dd HH:mm")</div>
+                            }
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            @b.CreatedUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            @{
+                                var paid = b.Payments?.Where(p => p.Status == PaymentStatus.Paid).Sum(p => (decimal?)p.Amount) ?? 0m;
+                                var pending = b.Payments?.Any(p => p.Status == PaymentStatus.Pending) == true;
+                            }
+                            <div>Paid: <span class="font-semibold">R @paid.ToString("0.00")</span></div>
+                            @if (pending)
+                            {
+                                <div class="text-xs text-amber-600">Pending payment</div>
+                            }
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-end gap-2">
+                                <a asp-action="Details" asp-route-id="@b.Id"
+                                   class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50">Open</a>
+                                @if (b.Status == BookingStatus.Booked)
+                                {
+                                    <a asp-action="Move" asp-route-id="@b.Id"
+                                       class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50">Move</a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

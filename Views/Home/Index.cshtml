@@ -1,0 +1,436 @@
+﻿@model PassItOnAcademy.Models.HomeIndexViewModel
+@{
+    ViewData["Title"] = "Rugby Coaching — PassItOnAcademy";
+}
+
+<!-- Scroll progress bar -->
+<div id="scrollbar"></div>
+
+@section FullWidthTop {
+    <style>
+        /* ---------- Existing local animations ---------- */
+        @@keyframes floatUp {
+            0% {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .animate-floatup {
+            animation: floatUp 800ms ease-out both;
+        }
+
+        @@keyframes pulseSoft {
+            0%, 100% {
+                transform: scale(1)
+            }
+
+            50% {
+                transform: scale(1.03)
+            }
+        }
+
+        .btn-pulse:hover {
+            animation: pulseSoft 800ms ease-in-out;
+        }
+
+        /* ---------- Motion system (respects Reduced Motion) ---------- */
+        @@media (prefers-reduced-motion:no-preference) {
+            .reveal
+
+        {
+            opacity: 0;
+            transform: translateY(24px) scale(.98);
+            transition: opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1);
+            will-change: transform, opacity;
+        }
+
+        .reveal.in {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        }
+
+        /* Subtle film grain over hero */
+        .hero-grain::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px), radial-gradient(rgba(0,0,0,.06) 1px, transparent 1px);
+            background-size: 3px 3px, 3px 3px;
+            background-position: 0 0, 1.5px 1.5px;
+            mix-blend-mode: overlay;
+            opacity: .25;
+        }
+
+        /* Spotlight cursor effect on hero headline */
+        .spotlight {
+            position: relative;
+            isolation: isolate;
+        }
+
+            .spotlight::before {
+                content: "";
+                position: absolute;
+                inset: -20%;
+                background: radial-gradient(180px 180px at var(--mx,50%) var(--my,50%), rgba(255,255,255,.18), transparent 60%);
+                mix-blend-mode: screen;
+                pointer-events: none;
+                transition: opacity .3s ease;
+                opacity: .85;
+            }
+
+        /* CTA sheen */
+        .btn-sheen {
+            position: relative;
+            overflow: hidden;
+        }
+
+            .btn-sheen::after {
+                content: "";
+                position: absolute;
+                inset: auto -30% -30% -30%;
+                top: -200%;
+                transform: rotate(25deg) translate3d(-100%,0,0);
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent);
+                width: 60%;
+                height: 300%;
+            }
+
+            .btn-sheen:hover::after {
+                transform: rotate(25deg) translate3d(180%,0,0);
+                transition: transform .8s ease;
+            }
+
+        /* Magnetic (subtle) buttons on hover */
+        .magnet {
+            transition: transform .15s ease;
+            will-change: transform;
+        }
+
+        /* 3D tilt card base */
+        .tilt-card {
+            transform-style: preserve-3d;
+            transition: transform .25s ease, box-shadow .25s ease;
+            will-change: transform;
+        }
+
+            .tilt-card .tilt-lift {
+                transform: translateZ(28px);
+            }
+
+        /* Gradient border ring for cards on hover */
+        .ring-gradient {
+            position: relative;
+            border-radius: 1rem;
+        }
+
+            .ring-gradient::before {
+                content: "";
+                position: absolute;
+                inset: -1px;
+                border-radius: inherit;
+                background: conic-gradient(from 180deg at 50% 50%, #22c55e33, #0ea5e933, #f59e0b33, #22c55e33);
+                filter: blur(0);
+                opacity: 0;
+                transition: opacity .3s ease;
+                -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+                -webkit-mask-composite: xor;
+                mask-composite: exclude;
+                padding: 1px;
+            }
+
+            .ring-gradient:hover::before {
+                opacity: 1;
+            }
+
+        /* Scroll progress bar */
+        #scrollbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0;
+            background: linear-gradient(90deg,#22c55e,#06b6d4,#f59e0b);
+            z-index: 50;
+        }
+
+        /* Parallax utility for hero background */
+        .parallax {
+            transform: translateY(var(--py,0));
+            transition: transform .1s linear;
+        }
+    </style>
+
+    <!-- HERO (full-bleed) -->
+    <section class="relative h-[90vh] md:h-screen w-full overflow-hidden hero-grain">
+        <div class="absolute inset-0 hero-bg parallax">
+            <img src="~/images/image1.jpg" alt="Rugby training"
+                 class="h-full w-full object-cover block" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-transparent"></div>
+        </div>
+
+        <div class="relative h-full flex items-center justify-center px-4">
+            <div class="text-center text-white animate-floatup max-w-3xl spotlight">
+                <h1 class="text-4xl md:text-6xl font-bold leading-tight">
+                    Position-Specific Rugby Coaching
+                </h1>
+                <p class="mt-4 text-lg md:text-xl text-zinc-100">
+                    High-impact, one-on-one sessions that build technique, confidence and game understanding.
+                    Book online. Train with intent. Perform under pressure.
+                </p>
+
+                <div class="mt-8 flex flex-wrap gap-4 justify-center">
+                    <a asp-controller="Schedule" asp-action="Index"
+                       class="btn-pulse btn-sheen magnet inline-flex items-center rounded-xl bg-[#FFD200] px-6 py-3 text-black font-bold hover:brightness-95 transition">
+                        Book a Session
+                    </a>
+                    <a asp-controller="Home" asp-action="Programs"
+                       class="magnet inline-flex items-center rounded-xl border border-white/30 px-5 py-3 text-white hover:bg-white/10 transition">
+                        Programs & Prices
+                    </a>
+                </div>
+
+                <div class="mt-8 flex flex-wrap justify-center gap-6 text-sm md:text-base text-zinc-200">
+                    <div class="inline-flex items-center gap-2">
+                        <span class="h-2 w-2 rounded-full bg-emerald-400"></span> Qualified coaching
+                    </div>
+                    <div class="inline-flex items-center gap-2">
+                        <span class="h-2 w-2 rounded-full bg-emerald-400"></span> Position-focused drills
+                    </div>
+                    <div class="inline-flex items-center gap-2">
+                        <span class="h-2 w-2 rounded-full bg-emerald-400"></span> Easy online booking
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- MAIN CONTENT (constrained container) -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <!-- HIGHLIGHTS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm animate-floatup reveal ring-gradient" style="animation-delay:60ms">
+            <div class="text-sm text-zinc-500">Skill Tracks</div>
+            <h3 class="mt-1 text-lg font-bold">Passing • Kicking • Contact</h3>
+            <p class="mt-2 text-sm text-zinc-600">
+                Progressive sessions designed to sharpen decision-making and technical execution.
+            </p>
+        </div>
+        <div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm animate-floatup reveal ring-gradient" style="animation-delay:120ms">
+            <div class="text-sm text-zinc-500">Position Focus</div>
+            <h3 class="mt-1 text-lg font-bold">Backs • Forwards • Specialist</h3>
+            <p class="mt-2 text-sm text-zinc-600">
+                Tailored drills for your role—set piece, breakdown, defensive reads and more.
+            </p>
+        </div>
+        <div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm animate-floatup reveal ring-gradient" style="animation-delay:180ms">
+            <div class="text-sm text-zinc-500">Track Progress</div>
+            <h3 class="mt-1 text-lg font-bold">Clear goals & feedback</h3>
+            <p class="mt-2 text-sm text-zinc-600">
+                See improvement across sessions with measurable targets and coaching notes.
+            </p>
+        </div>
+    </div>
+
+    <!-- UPCOMING SESSIONS -->
+    <div class="mt-16">
+        <div class="flex items-end justify-between">
+            <div>
+                <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight">Upcoming Sessions</h2>
+                <p class="text-sm text-zinc-500 mt-1">Freshly published by the coach—limited spots.</p>
+            </div>
+            <a asp-controller="Schedule" asp-action="Index"
+               class="hidden md:inline-flex items-center rounded-lg border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50 transition">
+                View full schedule
+            </a>
+        </div>
+
+        @if (Model.Upcoming?.Any() == true)
+        {
+            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach (var s in Model.Upcoming)
+                {
+                    var left = s.Capacity - s.Booked;
+
+                    <!-- 3D / GLASS CARD (Tilt + Glow) -->
+                    <div class="group [perspective:1200px] reveal">
+                        <div class="tilt-card relative h-full rounded-2xl bg-gradient-to-br from-white to-zinc-50 border border-zinc-200
+                                            shadow-[0_10px_20px_-8px_rgba(0,0,0,0.12)]
+                                            transition-all duration-500 ease-out">
+
+                            <!-- Decorative glass layer (non-interactive) -->
+                            <div class="pointer-events-none absolute inset-2 rounded-[22px] md:rounded-[26px]
+                                                bg-gradient-to-b from-white/60 to-white/20
+                                                border-l border-b border-white/70
+                                                [transform:translateZ(25px)]
+                                                transition-all duration-500 ease-out backdrop-blur-sm">
+                            </div>
+
+                            <!-- Optional top-right bubbles (non-interactive) -->
+                            <div class="pointer-events-none absolute right-1.5 top-1.5 [transform-style:preserve-3d]">
+                                <span class="absolute right-1.5 top-1.5 w-20 md:w-24 aspect-square rounded-full
+                                                     bg-emerald-300/10 backdrop-blur-[1px]
+                                                     [transform:translateZ(30px)] transition-all duration-500 ease-out"></span>
+                                <span class="absolute right-5 top-5 w-12 md:w-14 aspect-square rounded-full
+                                                     bg-teal-400/10 [transform:translateZ(50px)]
+                                                     transition-all duration-500 ease-out delay-150
+                                                     group-hover:[transform:translateZ(70px)]"></span>
+                            </div>
+
+                            <div class="tilt-lift relative z-10">
+                                <!-- IMAGE -->
+                                @if (!string.IsNullOrWhiteSpace(s.ImageUrl))
+                                {
+                                    <div class="relative aspect-[16/9] w-full overflow-hidden rounded-t-2xl">
+                                        <img src="@s.ImageUrl"
+                                             alt="@(string.IsNullOrWhiteSpace(s.ImageAlt) ? s.Title : s.ImageAlt)"
+                                             class="h-full w-full object-cover" />
+                                        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/10 to-transparent"></div>
+                                    </div>
+                                }
+
+                                <!-- CONTENT -->
+                                <div class="relative p-5">
+                                    <div class="flex items-center justify-between">
+                                        <div class="text-xs text-zinc-500">@s.StartLocal.ToString("ddd, dd MMM yyyy • HH:mm")</div>
+                                        @if (!string.IsNullOrWhiteSpace(s.Level))
+                                        {
+                                            <span class="rounded-full bg-black/90 px-2 py-0.5 text-[10px] font-semibold text-white">@s.Level</span>
+                                        }
+                                    </div>
+
+                                    <h3 class="mt-2 font-bold text-zinc-900">@s.Title</h3>
+                                    @if (!string.IsNullOrWhiteSpace(s.Location))
+                                    {
+                                        <div class="mt-1 text-sm text-zinc-600">@s.Location</div>
+                                    }
+
+                                    <div class="mt-4 flex items-center justify-between text-sm">
+                                        <div>Price: <span class="font-semibold">R @s.Price.ToString("0.00")</span></div>
+                                        <div class="text-zinc-600">Spots left: <span class="font-semibold">@left</span></div>
+                                    </div>
+
+                                    <div class="mt-4 flex items-center gap-2">
+                                        <a asp-controller="Schedule" asp-action="Index"
+                                           class="inline-flex items-center rounded-xl bg-[#FFD200] px-3 py-1.5 text-sm font-semibold text-black
+                                                              hover:brightness-95 transition btn-sheen magnet">
+                                            Book now
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="mt-6 rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-6 text-sm text-zinc-600 reveal">
+                No upcoming sessions are listed yet. Check the <a class="underline" asp-controller="Schedule" asp-action="Index">Schedule</a>
+                or come back soon.
+            </div>
+        }
+
+        <div class="mt-6 md:hidden">
+            <a asp-controller="Schedule" asp-action="Index"
+               class="inline-flex items-center rounded-lg border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50 transition">
+                View full schedule
+            </a>
+        </div>
+    </div>
+
+    <!-- CTA STRIP -->
+    <div class="mt-16 rounded-2xl bg-black text-white p-8 md:p-10 reveal">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+                <h3 class="text-2xl md:text-3xl font-extrabold">Ready to improve your game?</h3>
+                <p class="text-base text-zinc-300 mt-2">Book a session today and start your progression plan.</p>
+            </div>
+            <div class="flex gap-4">
+                <a asp-controller="Schedule" asp-action="Index"
+                   class="btn-pulse btn-sheen magnet inline-flex items-center rounded-xl bg-[#FFD200] px-6 py-3 text-sm font-semibold text-black hover:brightness-95 transition">
+                    Book a Session
+                </a>
+                <a asp-controller="Home" asp-action="Programs"
+                   class="magnet inline-flex items-center rounded-xl border border-white/30 px-5 py-3 text-sm hover:bg-white/10 transition">
+                    Explore Programs
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tiny vanilla JS enhancements -->
+<script>
+    (() => {
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Reveal on scroll
+      if(!prefersReduced){
+        const io = new IntersectionObserver((entries)=>{
+          entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+        }, {threshold: .12, rootMargin: "40px"});
+        document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+      }
+
+      // Spotlight follow (hero headline wrapper has .spotlight)
+      const spot = document.querySelector('.spotlight');
+      if(spot){
+        spot.addEventListener('pointermove', (e)=>{
+          const rect = spot.getBoundingClientRect();
+          spot.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+          spot.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+        });
+      }
+
+      // Magnetic buttons (subtle)
+      document.querySelectorAll('.magnet').forEach(btn=>{
+        btn.addEventListener('pointermove', (e)=>{
+          const r = btn.getBoundingClientRect();
+          const x = (e.clientX - (r.left + r.width/2)) / (r.width/2);
+          const y = (e.clientY - (r.top + r.height/2)) / (r.height/2);
+          btn.style.transform = `translate(${x*6}px, ${y*6}px)`;
+        });
+        btn.addEventListener('pointerleave', ()=> btn.style.transform = 'translate(0,0)');
+      });
+
+      // 3D tilt cards (attach to .tilt-card)
+      const clamp = (n,min,max)=>Math.max(min,Math.min(n,max));
+      document.querySelectorAll('.tilt-card').forEach(card=>{
+        let r;
+        card.addEventListener('pointermove', (e)=>{
+          r = card.getBoundingClientRect();
+          const px = (e.clientX - r.left)/r.width, py = (e.clientY - r.top)/r.height;
+          const rx = clamp((.5 - py)*14, -14, 14);
+          const ry = clamp((px - .5)*14, -14, 14);
+          card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+        });
+        card.addEventListener('pointerleave', ()=> card.style.transform = `rotateX(0) rotateY(0)`);
+      });
+
+      // Scroll progress bar + hero parallax
+      const bar = document.getElementById('scrollbar');
+      const heroImg = document.querySelector('.hero-bg');
+      const onScroll = () => {
+        const h = document.documentElement;
+        const sc = h.scrollTop, sh = h.scrollHeight - h.clientHeight;
+        if(bar){ bar.style.width = `${(sc / sh)*100}%`; }
+        if(heroImg && !prefersReduced){
+          heroImg.style.setProperty('--py', Math.min(sc * -0.08, 0) + 'px');
+        }
+      };
+      document.addEventListener('scroll', onScroll, {passive:true});
+      onScroll();
+    })();
+</script>

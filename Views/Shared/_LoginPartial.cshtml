@@ -1,0 +1,36 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PassItOnAcademy.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="flex items-center gap-3">
+        <a asp-area="Identity" asp-page="/Account/Manage/Index"
+           class="text-sm text-zinc-200 hover:text-white">
+            Hello @User.Identity?.Name!
+        </a>
+        <form method="post"
+              asp-area="Identity"
+              asp-page="/Account/Logout"
+              asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button type="submit"
+                    class="rounded-lg bg-[#FFD200] px-3 py-1.5 text-sm font-semibold text-black hover:brightness-95">
+                Logout
+            </button>
+        </form>
+    </div>
+}
+else
+{
+    <div class="flex items-center gap-3">
+        <a asp-area="Identity" asp-page="/Account/Login"
+           class="rounded-lg px-3 py-1.5 text-sm font-semibold text-zinc-200 hover:text-white">
+            Login
+        </a>
+        <a asp-area="Identity" asp-page="/Account/Register"
+           class="rounded-lg bg-[#FFD200] px-3 py-1.5 text-sm font-semibold text-black hover:brightness-95">
+            Register
+        </a>
+    </div>
+}

@@ -1,0 +1,50 @@
+﻿@model PassItOnAcademy.ViewModels.BookingChooseVM
+@{
+    ViewData["Title"] = "Choose payment";
+}
+<div class="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <h1 class="text-2xl md:text-3xl font-extrabold">Choose payment</h1>
+    <p class="mt-1 text-sm text-zinc-600">Confirm your booking and select how you want to pay.</p>
+
+    <div class="mt-6 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" alt="@(Model.ImageAlt ?? Model.Title)" class="h-48 w-full object-cover" />
+        }
+        <div class="p-5">
+            <div class="text-xs text-zinc-500">
+                @(string.IsNullOrWhiteSpace(Model.Level) ? "All levels" : Model.Level)
+                • @Model.StartLocal.ToString("ddd, dd MMM yyyy • HH:mm")
+            </div>
+            <h2 class="mt-1 font-bold text-lg">@Model.Title</h2>
+            @if (!string.IsNullOrWhiteSpace(Model.ProgramName))
+            {
+                <div class="text-xs text-zinc-500">@Model.ProgramName</div>
+            }
+            <div class="mt-2 text-sm text-zinc-600">@Model.Location</div>
+
+            <div class="mt-4 text-xl font-extrabold">R @Model.Price.ToString("0.00")</div>
+
+            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <form asp-action="Cash" method="post" class="contents">
+                    <input type="hidden" name="sessionId" value="@Model.SessionId" />
+                    <button type="submit"
+                            class="inline-flex items-center justify-center rounded-xl border border-zinc-300 px-4 py-2.5 text-sm hover:bg-zinc-50 w-full">
+                        Pay cash (on the day)
+                    </button>
+                </form>
+
+                <form asp-action="PayFastStart" method="post" class="contents">
+                    <input type="hidden" name="sessionId" value="@Model.SessionId" />
+                    <button type="submit"
+                            class="inline-flex items-center justify-center rounded-xl bg-[#FFD200] px-4 py-2.5 text-sm font-semibold text-black hover:brightness-95 w-full">
+                        Pay online (PayFast)
+                    </button>
+                </form>
+            </div>
+
+            <a asp-controller="Schedule" asp-action="Index"
+               class="mt-4 inline-flex text-sm text-zinc-600 underline">Back to schedule</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,131 @@
+﻿@model PassItOnAcademy.Models.TrainingSession
+@{
+    ViewData["Title"] = "Session Details";
+    var booked = Model.Bookings?.Where(b => b.Status == PassItOnAcademy.Models.BookingStatus.Booked).ToList() ?? new List<PassItOnAcademy.Models.Booking>();
+}
+
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">@Model.Title</h1>
+            <p class="text-sm text-zinc-500">
+                @Model.Level
+                <span class="mx-2">•</span>
+                @Model.StartUtc.ToLocalTime().ToString("ddd, dd MMM yyyy HH:mm") – @Model.EndUtc.ToLocalTime().ToString("HH:mm")
+                <span class="mx-2">•</span>
+                @Model.Location
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id"
+               class="rounded-lg bg-black px-3 py-1.5 text-sm text-white hover:bg-zinc-900">Edit</a>
+
+            <form asp-action="Duplicate" asp-route-id="@Model.Id" method="post" class="inline">
+                @Html.AntiForgeryToken()
+                <button type="submit"
+                        class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50">
+                    Duplicate +1 week
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Image + quick stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-2 overflow-hidden rounded-2xl ring-1 ring-zinc-200">
+            <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/placeholder-session-wide.jpg" : Model.ImageUrl)"
+                 alt="@Model.ImageAlt" class="h-64 w-full object-cover" />
+        </div>
+
+        <div class="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-zinc-500">Status</span>
+                    <span class="rounded-full px-2.5 py-1 text-xs font-semibold
+                        @(Model.Status == PassItOnAcademy.Models.SessionStatus.Scheduled ? "bg-emerald-100 text-emerald-800" :
+                          Model.Status == PassItOnAcademy.Models.SessionStatus.Completed ? "bg-zinc-200 text-zinc-800" :
+                          "bg-red-100 text-red-700")">
+                        @Model.Status
+                    </span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-zinc-500">Capacity</span>
+                    <span class="text-sm font-semibold">@booked.Count / @Model.Capacity</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-zinc-500">Price</span>
+                    <span class="text-sm font-semibold">R @Model.Price.ToString("0.00")</span>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    @if (Model.Status == PassItOnAcademy.Models.SessionStatus.Scheduled)
+                    {
+                        <form asp-action="Complete" asp-route-id="@Model.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit"
+                                    class="rounded-lg bg-black px-3 py-1.5 text-sm font-semibold text-white hover:bg-zinc-900">
+                                Mark Completed
+                            </button>
+                        </form>
+                        <form asp-action="Cancel" asp-route-id="@Model.Id" method="post"
+                              onsubmit="return confirm('Cancel this session and notify attendees?');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit"
+                                    class="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-700">
+                                Cancel Session
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-action="Index"
+                           class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50">
+                            Back to list
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Who's booked -->
+    <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+        <div class="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
+            <h2 class="text-sm font-semibold">Attendees</h2>
+            <span class="text-xs text-zinc-500">@booked.Count of @Model.Capacity booked</span>
+        </div>
+
+        <table class="min-w-full divide-y divide-zinc-200">
+            <thead class="bg-zinc-50">
+                <tr>
+                    <th class="px-4 py-2 text-left text-xs font-semibold text-zinc-600">Name</th>
+                    <th class="px-4 py-2 text-left text-xs font-semibold text-zinc-600">Contact</th>
+                    <th class="px-4 py-2 text-left text-xs font-semibold text-zinc-600">Payment</th>
+                    <th class="px-4 py-2 text-left text-xs font-semibold text-zinc-600">Booked On</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200">
+            @foreach (var b in booked.OrderBy(x => x.CreatedUtc))
+            {
+                var paid = b.Payments?.Any(p => p.Status == PassItOnAcademy.Models.PaymentStatus.Paid) == true;
+                var pm = b.PaymentMethod == PassItOnAcademy.Models.PaymentMethod.Cash ? "Cash" : "PayFast";
+                <tr>
+                    <td class="px-4 py-2 text-sm">@b.User?.FullName</td>
+                    <td class="px-4 py-2 text-sm">
+                        <div>@b.User?.Email</div>
+                        <div class="text-xs text-zinc-500">@b.User?.PhoneNumber</div>
+                    </td>
+                    <td class="px-4 py-2 text-sm">
+                        <span class="rounded-md px-2 py-0.5 text-xs ring-1 ring-inset
+                            @(paid ? "bg-emerald-50 text-emerald-800 ring-emerald-200"
+                                   : pm == "Cash" ? "bg-zinc-50 text-zinc-800 ring-zinc-200"
+                                   : "bg-amber-50 text-amber-800 ring-amber-200")">
+                            @pm @(paid ? "· Paid" : "· Pending")
+                        </span>
+                    </td>
+                    <td class="px-4 py-2 text-sm">@b.CreatedUtc.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

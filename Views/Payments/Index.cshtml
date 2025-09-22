@@ -1,0 +1,177 @@
+﻿@model IEnumerable<PassItOnAcademy.Models.Payment>
+@using PassItOnAcademy.Models
+@using System
+@using System.Linq
+
+@{
+    ViewData["Title"] = "Payments";
+
+    decimal expected = 0m;
+    if (ViewBag.Expected is decimal ev) expected = ev;
+
+    decimal paidTotal = 0m;
+    if (ViewBag.Paid is decimal pv) paidTotal = pv;
+
+    decimal gap = expected - paidTotal;
+
+    var query = Context?.Request?.Query;
+    string selectedStatus = query?["status"];
+
+    string[] statusOptions = new[]
+    {
+        "", nameof(PaymentStatus.Paid), nameof(PaymentStatus.Pending),
+        nameof(PaymentStatus.Failed), nameof(PaymentStatus.Cancelled)
+    };
+
+    string BadgeClass(PaymentStatus s)
+        => s == PaymentStatus.Paid ? "bg-emerald-100 text-emerald-800"
+         : s == PaymentStatus.Pending ? "bg-amber-100 text-amber-800"
+         : s == PaymentStatus.Failed ? "bg-red-100 text-red-800"
+         : "bg-zinc-200 text-zinc-800";
+}
+
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Payments</h1>
+            <p class="text-sm text-zinc-500">Filter by session, time window, and status. Compare expected vs paid.</p>
+        </div>
+        <a asp-controller="Bookings" asp-action="Index"
+           class="inline-flex items-center rounded-xl bg-[#FFD200] px-4 py-2 text-sm font-semibold text-black hover:brightness-95">
+            Go to Bookings
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+            <div class="text-xs text-zinc-500">Expected (Bookings)</div>
+            <div class="mt-1 text-2xl font-extrabold">R @expected.ToString("0.00")</div>
+        </div>
+        <div class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+            <div class="text-xs text-zinc-500">Paid (Payments)</div>
+            <div class="mt-1 text-2xl font-extrabold text-emerald-700">R @paidTotal.ToString("0.00")</div>
+        </div>
+        <div class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+            <div class="text-xs text-zinc-500">Gap</div>
+            <div class="mt-1 text-2xl font-extrabold @(gap <= 0 ? "text-emerald-700" : "text-amber-600")">R @gap.ToString("0.00")</div>
+        </div>
+    </div>
+
+    <form method="get" class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+            <div>
+                <label class="block text-xs font-medium text-zinc-600">Session ID</label>
+                <input type="number" name="sessionId" value="@(query?["sessionId"])" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-600">From (local)</label>
+                <input type="datetime-local" name="from" value="@(query?["from"])" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-600">To (local)</label>
+                <input type="datetime-local" name="to" value="@(query?["to"])" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-600">Status</label>
+                <select name="status" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm">
+                    @foreach (var opt in statusOptions)
+                    {
+                        var isSel = string.Equals(selectedStatus, opt, StringComparison.OrdinalIgnoreCase);
+                        <option value="@opt" selected="@(isSel ? "selected" : null)">
+                            @(string.IsNullOrEmpty(opt) ? "Any" : opt)
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="md:col-span-2 flex items-end gap-3">
+                <button type="submit"
+                        class="inline-flex items-center rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-900">
+                    Apply
+                </button>
+                <a asp-action="Index" class="rounded-xl border border-zinc-300 px-4 py-2 text-sm hover:bg-zinc-50">Reset</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+        <table class="min-w-full divide-y divide-zinc-200">
+            <thead class="bg-zinc-50">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Payment</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Booking & Session</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Customer</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Amounts</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Timestamps</th>
+                    <th class="px-4 py-3"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200">
+                @foreach (var item in (Model ?? Enumerable.Empty<Payment>()))
+                {
+                    var rowBadge = BadgeClass(item.Status);
+                    var customerName = item.Booking?.User?.FullName
+                    ?? item.Booking?.User?.Email
+                    ?? "—";
+
+                    // Prefer new fields; fall back to legacy if present
+                    var refText = !string.IsNullOrWhiteSpace(item.Reference)
+                    ? item.Reference
+                    : (!string.IsNullOrWhiteSpace(item.MerchantReference)
+                    ? item.MerchantReference
+                    : item.GatewayPaymentId);
+
+                    var gatewayRef = !string.IsNullOrWhiteSpace(item.ProviderReference)
+                    ? item.ProviderReference
+                    : item.GatewayPaymentId;
+
+                    <tr class="hover:bg-zinc-50/60">
+                        <td class="px-4 py-3 text-sm">
+                            <div class="font-semibold">#@item.Id</div>
+                            <div class="text-xs text-zinc-600">Method: @item.Method</div>
+                            @if (!string.IsNullOrWhiteSpace(gatewayRef))
+                            {
+                                <div class="text-[11px] text-zinc-500 truncate">Gateway Ref: @gatewayRef</div>
+                            }
+                            <div class="mt-1">
+                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold @rowBadge">@item.Status</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            <div>Booking: <span class="font-medium">#@item.BookingId</span></div>
+                            <div class="text-xs text-zinc-600">
+                                Session: @item.Booking?.Session?.Title (ID: @item.Booking?.SessionId)
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            <div class="font-medium">@customerName</div>
+                            <div class="text-xs text-zinc-500">@item.Booking?.User?.PhoneNumber</div>
+                            <div class="text-xs text-zinc-500">@item.Booking?.User?.Email</div>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            <div class="font-semibold">R @item.Amount.ToString("0.00") @item.Currency</div>
+                            @if (!string.IsNullOrWhiteSpace(refText))
+                            {
+                                <div class="text-xs text-zinc-500 truncate">Ref: @refText</div>
+                            }
+                        </td>
+                        <td class="px-4 py-3 text-xs text-zinc-600">
+                            <div>Created: @item.CreatedUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</div>
+                            @if (item.PaidUtc.HasValue)
+                            {
+                                <div>Paid: @item.PaidUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</div>
+                            }
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-end gap-2">
+                                <a asp-action="Details" asp-route-id="@item.Id"
+                                   class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50">
+                                    Open
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

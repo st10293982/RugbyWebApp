@@ -1,0 +1,102 @@
+﻿@model IEnumerable<PassItOnAcademy.Models.Booking>
+@{
+    ViewData["Title"] = "My bookings";
+}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="flex items-end justify-between gap-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">My bookings</h1>
+            <p class="text-sm text-zinc-500 mt-1">View and manage your upcoming and past bookings.</p>
+        </div>
+        <a asp-controller="Schedule" asp-action="Index"
+           class="hidden md:inline-flex items-center rounded-lg border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50">Find a session</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="mt-8 rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-8 text-center">
+            <div class="text-lg font-semibold">You have no bookings yet</div>
+            <p class="mt-1 text-sm text-zinc-600">Browse the schedule to book your first session.</p>
+            <a asp-controller="Schedule" asp-action="Index"
+               class="mt-4 inline-flex items-center rounded-xl bg-[#FFD200] px-4 py-2 text-sm font-semibold text-black hover:brightness-95">
+                Go to schedule
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach (var b in Model)
+            {
+                var s = b.Session!;
+                var spotsLeft = Math.Max(0, s.Capacity - s.Bookings.Count(x => x.Status == PassItOnAcademy.Models.BookingStatus.Booked));
+                var startLocal = DateTime.SpecifyKind(s.StartUtc, DateTimeKind.Utc).ToLocalTime();
+                var endLocal = DateTime.SpecifyKind(s.EndUtc, DateTimeKind.Utc).ToLocalTime();
+                var canCancel = b.Status == PassItOnAcademy.Models.BookingStatus.Booked && s.StartUtc > DateTime.UtcNow.AddHours(24);
+
+                <div class="group overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+                    <div class="relative h-40 w-full bg-zinc-100">
+                        @if (!string.IsNullOrWhiteSpace(s.ImageUrl))
+                        {
+                            <img src="@s.ImageUrl" alt="@(!string.IsNullOrWhiteSpace(s.ImageAlt) ? s.ImageAlt : s.Title)"
+                                 class="h-full w-full object-cover" />
+                        }
+                        else
+                        {
+                            <div class="absolute inset-0 grid place-items-center text-zinc-400 text-xs">No image</div>
+                        }
+
+                        <div class="absolute left-3 top-3 rounded-full bg-black/85 px-2 py-0.5 text-[10px] font-semibold text-white">
+                            @(string.IsNullOrWhiteSpace(s.Level) ? "All levels" : s.Level)
+                        </div>
+
+                        <div class="absolute right-3 top-3 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-black">
+                            @b.Status
+                        </div>
+                    </div>
+
+                    <div class="p-4">
+                        <div class="text-xs text-zinc-500">@startLocal.ToString("ddd, dd MMM yyyy • HH:mm") – @endLocal.ToString("HH:mm")</div>
+                        <h3 class="mt-1 font-bold line-clamp-2">@s.Title</h3>
+                        @if (!string.IsNullOrWhiteSpace(s.TrainingProgram?.Name))
+                        {
+                            <div class="mt-0.5 text-xs text-zinc-500">@s.TrainingProgram!.Name</div>
+                        }
+                        <div class="mt-2 text-sm text-zinc-600">@s.Location</div>
+
+                        <div class="mt-4 flex items-center justify-between text-sm">
+                            <div>Price: <span class="font-semibold">R @s.Price.ToString("0.00")</span></div>
+                            <div class="text-zinc-600">Spots left: <span class="font-semibold">@spotsLeft</span></div>
+                        </div>
+
+                        <div class="mt-4 flex items-center gap-2">
+                            <a asp-controller="Schedule" asp-action="Details" asp-route-id="@s.Id"
+                               class="inline-flex items-center rounded-xl border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50">
+                                Details
+                            </a>
+
+                            @if (canCancel)
+                            {
+                                <form asp-action="Cancel" method="post" class="inline">
+                                    <input type="hidden" name="id" value="@b.Id" />
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="inline-flex items-center rounded-xl bg-black text-white px-3 py-1.5 text-sm hover:bg-black/90">
+                                        Cancel
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <button disabled
+                                        class="inline-flex items-center rounded-xl px-3 py-1.5 text-sm border border-zinc-200 text-zinc-400 cursor-not-allowed">
+                                    @((b.Status == PassItOnAcademy.Models.BookingStatus.Booked) ? "Cannot cancel (<24h)" : "Not active")
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

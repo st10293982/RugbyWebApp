@@ -1,0 +1,99 @@
+﻿@model PassItOnAcademy.ViewModels.TrainingSessionFormVM
+@{
+    ViewData["Title"] = "Create Session";
+}
+
+<div class="mx-auto max-w-3xl space-y-6">
+    <div>
+        <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Create session</h1>
+        <p class="text-sm text-zinc-500">Add a new training slot with time, capacity and price.</p>
+    </div>
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data"
+          class="space-y-6 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-sm text-red-600"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+                <label asp-for="Title" class="block text-sm font-medium">Title</label>
+                <input asp-for="Title" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2" />
+                <span asp-validation-for="Title" class="text-sm text-red-600"></span>
+            </div>
+
+            <div>
+                <label asp-for="Level" class="block text-sm font-medium">Level / Age</label>
+                <input asp-for="Level" placeholder="U18, Beginner, etc."
+                       class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2" />
+                <span asp-validation-for="Level" class="text-sm text-red-600"></span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">Start (local)</label>
+                <input asp-for="StartLocal" type="datetime-local"
+                       class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2" />
+                <span asp-validation-for="StartLocal" class="text-sm text-red-600"></span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium">End (local)</label>
+                <input asp-for="EndLocal" type="datetime-local"
+                       class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2" />
+                <span asp-validation-for="EndLocal" class="text-sm text-red-600"></span>
+            </div>
+
+            <div>
+                <label asp-for="Location" class="block text-sm font-medium">Location</label>
+                <input asp-for="Location" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2" />
+                <span asp-validation-for="Location" class="text-sm text-red-600"></span>
+            </div>
+
+            <div>
+                <label asp-for="Capacity" class="block text-sm font-medium">Capacity</label>
+                <input asp-for="Capacity" type="number" min="1"
+                       class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2" />
+                <span asp-validation-for="Capacity" class="text-sm text-red-600"></span>
+            </div>
+
+            <div>
+                <label asp-for="Price" class="block text-sm font-medium">Price (ZAR)</label>
+                <input asp-for="Price" type="number" step="0.01" min="0"
+                       class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2" />
+                <span asp-validation-for="Price" class="text-sm text-red-600"></span>
+            </div>
+
+            <div>
+                <label asp-for="TrainingProgramId" class="block text-sm font-medium">Program</label>
+                <select asp-for="TrainingProgramId" asp-items="ViewBag.Programs"
+                        class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2">
+                    <option value="">— None —</option>
+                </select>
+                <span asp-validation-for="TrainingProgramId" class="text-sm text-red-600"></span>
+            </div>
+        </div>
+
+        <!-- Image -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium">Session image</label>
+                <input asp-for="ImageFile" type="file" accept=".jpg,.jpeg,.png"
+                       class="mt-2 block w-full rounded-lg border border-zinc-300 file:mr-4 file:rounded-md file:border-0 file:bg-[#FFD200] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black hover:file:brightness-95" />
+                <span asp-validation-for="ImageFile" class="text-sm text-red-600"></span>
+            </div>
+            <div>
+                <label asp-for="ImageAlt" class="block text-sm font-medium">Alt text</label>
+                <input asp-for="ImageAlt" placeholder="e.g., Scrum clinic U18"
+                       class="mt-2 block w-full rounded-lg border border-zinc-300 px-3 py-2" />
+                <span asp-validation-for="ImageAlt" class="text-sm text-red-600"></span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+            <a asp-action="Index" class="rounded-lg border border-zinc-300 px-4 py-2 text-sm hover:bg-zinc-50">Cancel</a>
+            <button type="submit"
+                    class="rounded-xl bg-black px-5 py-2.5 text-sm font-semibold text-white hover:bg-zinc-900">
+                Create session
+            </button>
+        </div>
+    </form>
+</div>

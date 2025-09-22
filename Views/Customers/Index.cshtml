@@ -1,0 +1,36 @@
+﻿@model IEnumerable<dynamic>
+@{
+    ViewData["Title"] = "Customers"; var q = Context.Request.Query["q"];
+}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-extrabold">Customers</h1>
+    <form method="get" class="flex gap-2">
+        <input name="q" value="@q" placeholder="Name / email / phone" class="rounded-lg border px-3 py-2 text-sm" />
+        <button class="rounded-lg bg-black px-4 py-2 text-sm text-white">Search</button>
+    </form>
+</div>
+<div class="overflow-hidden rounded-xl border bg-white">
+    <table class="min-w-full divide-y">
+        <thead class="bg-zinc-50">
+            <tr>
+                <th class="px-4 py-2 text-left text-xs font-semibold">Customer</th>
+                <th class="px-4 py-2 text-left text-xs font-semibold">Contact</th>
+                <th class="px-4 py-2 text-left text-xs font-semibold">Total Bookings</th>
+                <th class="px-4 py-2"></th>
+            </tr>
+        </thead>
+        <tbody class="divide-y">
+            @foreach (var u in Model)
+            {
+                <tr>
+                    <td class="px-4 py-2">@u.FullName</td>
+                    <td class="px-4 py-2 text-sm">@u.Email<br /><span class="text-zinc-500">@u.PhoneNumber</span></td>
+                    <td class="px-4 py-2">@u.TotalBookings</td>
+                    <td class="px-4 py-2 text-right">
+                        <a asp-action="Details" asp-route-id="@u.Id" class="rounded-lg border px-3 py-1.5 text-sm">Open</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

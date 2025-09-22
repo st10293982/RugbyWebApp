@@ -1,0 +1,126 @@
+﻿@model PassItOnAcademy.ViewModels.SessionIndexVM
+@{
+    ViewData["Title"] = "Sessions";
+}
+
+<div class="space-y-6">
+    <!-- Page header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Sessions</h1>
+            <p class="text-sm text-zinc-500">Create, edit and manage upcoming training sessions.</p>
+        </div>
+        <a asp-action="Create"
+           class="inline-flex items-center rounded-xl bg-[#FFD200] px-4 py-2 text-sm font-semibold text-black hover:brightness-95">
+            + New Session
+        </a>
+    </div>
+
+    <!-- Flash message -->
+    @if (TempData["Msg"] is string msg && !string.IsNullOrWhiteSpace(msg))
+    {
+        <div class="rounded-xl border border-zinc-200 bg-white p-3 text-sm text-zinc-800 shadow-sm">
+            @msg
+        </div>
+    }
+
+    <!-- Filters -->
+    <form method="get" class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div>
+                <label class="block text-xs font-medium text-zinc-600">From</label>
+                <input type="datetime-local" name="from"
+                       value="@(Model.Filters.FromLocal?.ToString("yyyy-MM-ddTHH\\:mm"))"
+                       class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-600">To</label>
+                <input type="datetime-local" name="to"
+                       value="@(Model.Filters.ToLocal?.ToString("yyyy-MM-ddTHH\\:mm"))"
+                       class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-xs font-medium text-zinc-600">Level</label>
+                <select name="level" asp-items="Model.Filters.Levels"
+                        class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm">
+                    <option value="">All levels</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button type="submit"
+                        class="inline-flex w-full items-center justify-center rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-900">
+                    Apply
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Sessions table -->
+    <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+        <table class="min-w-full divide-y divide-zinc-200">
+            <thead class="bg-zinc-50">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Session</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">When</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Location</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Capacity</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Price</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Status</th>
+                    <th class="px-4 py-3"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200">
+                @foreach (var s in Model.Items)
+                {
+                    <tr class="hover:bg-zinc-50/60">
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                <img src="@(string.IsNullOrEmpty(s.ImageUrl) ? "/images/placeholder-session.png" : s.ImageUrl)"
+                                     alt="" class="h-12 w-12 rounded-lg object-cover ring-1 ring-zinc-200" />
+                                <div>
+                                    <div class="font-semibold">@s.Title</div>
+                                    <div class="text-xs text-zinc-500">@s.Level</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            <div class="font-medium">@s.StartUtc.ToLocalTime().ToString("ddd, dd MMM yyyy HH:mm")</div>
+                            <div class="text-xs text-zinc-500">to @s.EndUtc.ToLocalTime().ToString("HH:mm")</div>
+                        </td>
+                        <td class="px-4 py-3 text-sm">@s.Location</td>
+                        <td class="px-4 py-3 text-sm">
+                            <span class="rounded-md bg-zinc-100 px-2 py-1 text-xs">
+                                @s.BookedCount / @s.Capacity
+                            </span>
+                            @if (s.Remaining == 0)
+                            {
+                                <span class="ml-2 rounded-md bg-red-100 px-2 py-1 text-xs text-red-700">Full</span>
+                            }
+                            else if (s.Remaining <= 2)
+                            {
+                                <span class="ml-2 rounded-md bg-amber-100 px-2 py-1 text-xs text-amber-800">@s.Remaining left</span>
+                            }
+                    </td>
+                    <td class="px-4 py-3 text-sm">R @s.Price.ToString("0.00")</td>
+                    <td class="px-4 py-3">
+                        <span class="rounded-full px-2.5 py-1 text-xs font-semibold
+                                         @(s.Status == "Scheduled" ? "bg-emerald-100 text-emerald-800" :
+                                                                         s.Status == "Completed" ? "bg-zinc-200 text-zinc-800" :
+                                                                         "bg-red-100 text-red-700")">
+                            @s.Status
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <a asp-action="Details" asp-route-id="@s.Id"
+                               class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50">Details</a>
+                            <a asp-action="Edit" asp-route-id="@s.Id"
+                               class="rounded-lg bg-black px-3 py-1.5 text-sm text-white hover:bg-zinc-900">Edit</a>
+                        </div>
+                    </td>
+                </tr>
+                                }
+            </tbody>
+        </table>
+    </div>
+</div>

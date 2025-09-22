@@ -1,0 +1,62 @@
+﻿@model PassItOnAcademy.ViewModels.BookingConfirmVM
+@{
+    ViewData["Title"] = "Confirm booking";
+}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
+        <div class="relative h-48 bg-zinc-100">
+            @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+            {
+                <img src="@Model.ImageUrl" alt="@Model.ImageAlt ?? Model.Title"
+                     class="h-full w-full object-cover" />
+            }
+            else
+            {
+                <div class="absolute inset-0 grid place-items-center text-zinc-400 text-sm">No image</div>
+            }
+            <div class="absolute left-4 top-4 rounded-full bg-black/80 px-2 py-0.5 text-[10px] font-semibold text-white">
+                @(string.IsNullOrWhiteSpace(Model.Level) ? "All levels" : Model.Level)
+            </div>
+        </div>
+
+        <div class="p-6">
+            <h1 class="text-xl md:text-2xl font-extrabold">@Model.Title</h1>
+            <div class="mt-1 text-sm text-zinc-600">
+                @Model.WhenDisplay • @Model.Location
+            </div>
+
+            <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                <div class="rounded-lg bg-zinc-50 p-3">
+                    <div class="text-zinc-500">Price</div>
+                    <div class="font-semibold">R @Model.Price.ToString("0.00")</div>
+                </div>
+                <div class="rounded-lg bg-zinc-50 p-3">
+                    <div class="text-zinc-500">Capacity</div>
+                    <div class="font-semibold">@Model.Capacity</div>
+                </div>
+                <div class="rounded-lg bg-zinc-50 p-3">
+                    <div class="text-zinc-500">Spots left</div>
+                    <div class="font-semibold">@Model.SpotsLeft</div>
+                </div>
+            </div>
+
+            <form asp-action="CreatePost" method="post" class="mt-6">
+                <input type="hidden" name="sessionId" value="@Model.SessionId" />
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="submit"
+                            class="inline-flex items-center justify-center rounded-xl bg-[#FFD200] px-5 py-2.5 text-sm font-semibold text-black hover:brightness-95">
+                        Confirm booking
+                    </button>
+                    <a asp-controller="Schedule" asp-action="Details" asp-route-id="@Model.SessionId"
+                       class="inline-flex items-center justify-center rounded-xl border border-zinc-300 px-5 py-2.5 text-sm hover:bg-zinc-50">
+                        Back
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <p class="mt-4 text-xs text-zinc-500">
+        By confirming you agree to our cancellation policy (24h before session start).
+    </p>
+</div>

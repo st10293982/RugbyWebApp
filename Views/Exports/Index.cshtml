@@ -1,0 +1,90 @@
+﻿@{
+    ViewData["Title"] = "Exports";
+}
+
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Exports</h1>
+            <p class="text-sm text-zinc-500">Download CSVs for bookings and payments. Use optional filters.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Bookings CSV -->
+        <div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <h2 class="text-sm font-semibold">Bookings CSV</h2>
+            <p class="mt-1 text-xs text-zinc-500">Filters are optional. Dates are interpreted as local and converted to UTC on the server.</p>
+
+            <form method="get" asp-controller="Exports" asp-action="BookingsCsv" class="mt-4 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-600">Session ID</label>
+                        <input type="number" name="sessionId" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-600">From (local)</label>
+                        <input type="datetime-local" name="from" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-600">To (local)</label>
+                        <input type="datetime-local" name="to" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit"
+                            class="inline-flex items-center rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-900">
+                        Download bookings.csv
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Payments CSV -->
+        <div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <h2 class="text-sm font-semibold">Payments CSV</h2>
+            <p class="mt-1 text-xs text-zinc-500">Filters are optional. Dates are interpreted as local and converted to UTC on the server.</p>
+
+            <form method="get" asp-controller="Exports" asp-action="PaymentsCsv" class="mt-4 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-600">From (local)</label>
+                        <input type="datetime-local" name="from" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-600">To (local)</label>
+                        <input type="datetime-local" name="to" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-600">Status</label>
+                        <select name="status" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm">
+                            <option value="">Any</option>
+                            <option>Paid</option>
+                            <option>Pending</option>
+                            <option>Failed</option>
+                            <option>Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit"
+                            class="inline-flex items-center rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-900">
+                        Download payments.csv
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="rounded-xl border border-zinc-200 bg-white p-4 text-xs text-zinc-600">
+        Tip: If you want fixed “quick links”, you can also link directly to:
+        <div class="mt-2 space-y-1">
+            <div><code>/Exports/BookingsCsv</code></div>
+            <div><code>/Exports/PaymentsCsv</code></div>
+        </div>
+    </div>
+</div>

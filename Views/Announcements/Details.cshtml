@@ -1,0 +1,25 @@
+﻿@model PassItOnAcademy.Models.Announcement
+@{
+    ViewData["Title"] = "Announcement";
+}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-extrabold">@Model.Title</h1>
+    <div class="flex gap-2">
+        <form asp-action="Notify" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+            <button class="rounded-lg bg-[#FFD200] px-3 py-1.5 text-sm font-semibold text-black">Notify</button>
+        </form>
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Delete announcement?');">
+            @Html.AntiForgeryToken()
+            <button class="rounded-lg border px-3 py-1.5 text-sm">Delete</button>
+        </form>
+    </div>
+</div>
+@if (TempData["Msg"] is string m)
+{
+    <div class="mb-4 rounded-xl border p-3 bg-white">@m</div>
+}
+<div class="rounded-xl border bg-white p-4">
+    <div class="text-xs text-zinc-600 mb-2">@((Model.IsGlobal ? "Global" : $"Session #{Model.SessionId}")) · Notified: @Model.RecipientsNotified</div>
+    <div class="whitespace-pre-line">@Model.Body</div>
+</div>

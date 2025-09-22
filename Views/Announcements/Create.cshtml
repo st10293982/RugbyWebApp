@@ -1,0 +1,29 @@
+﻿@model PassItOnAcademy.Models.Announcement
+@{
+    ViewData["Title"] = "New Announcement";
+}
+<h1 class="text-2xl font-extrabold mb-4">New Announcement</h1>
+<form asp-action="Create" method="post" class="space-y-4 max-w-2xl">
+    @Html.AntiForgeryToken()
+    <div>
+        <label class="text-sm">Title</label>
+        <input asp-for="Title" class="mt-1 w-full rounded-lg border px-3 py-2" />
+        <span asp-validation-for="Title" class="text-red-600 text-sm"></span>
+    </div>
+    <div>
+        <label class="text-sm">Body</label>
+        <textarea asp-for="Body" rows="6" class="mt-1 w-full rounded-lg border px-3 py-2"></textarea>
+        <span asp-validation-for="Body" class="text-red-600 text-sm"></span>
+    </div>
+    <div class="flex items-center gap-4">
+        <label class="inline-flex items-center gap-2">
+            <input asp-for="IsGlobal" type="checkbox" class="h-4 w-4" />
+            <span class="text-sm">Global</span>
+        </label>
+        <input type="number" asp-for="SessionId" placeholder="Session Id (optional)" class="rounded-lg border px-3 py-2 text-sm" />
+    </div>
+    <div class="flex gap-3">
+        <a asp-action="Index" class="rounded-lg border px-4 py-2 text-sm">Cancel</a>
+        <button type="submit" class="rounded-lg bg-black px-4 py-2 text-sm text-white">Create</button>
+    </div>
+</form>

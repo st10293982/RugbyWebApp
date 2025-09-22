@@ -1,0 +1,108 @@
+﻿@model IEnumerable<PassItOnAcademy.Models.TrainingProgram>
+@{
+    ViewData["Title"] = "Programs & Prices";
+    var show = (ViewBag.Show as string) ?? "active";
+    var q = ViewBag.Query as string;
+}
+
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">Programs & Prices</h1>
+            <p class="text-sm text-zinc-500">Create, edit, and toggle programs that power your session catalog.</p>
+        </div>
+        <a asp-action="Create"
+           class="inline-flex items-center rounded-xl bg-[#FFD200] px-4 py-2 text-sm font-semibold text-black hover:brightness-95">
+            + New Program
+        </a>
+    </div>
+
+    @if (TempData["Msg"] is string msg && !string.IsNullOrWhiteSpace(msg))
+    {
+        <div class="rounded-xl border border-zinc-200 bg-white p-3 text-sm text-zinc-800 shadow-sm">@msg</div>
+    }
+
+    <form method="get" class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+            <div class="md:col-span-4">
+                <label class="block text-xs font-medium text-zinc-600">Search</label>
+                <input type="text" name="q" value="@q" placeholder="Name or description…"
+                       class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-600">Show</label>
+                <select name="show" class="mt-1 block w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm">
+                    <option value="active" selected="@(show == "active")">Active</option>
+                    <option value="inactive" selected="@(show == "inactive")">Inactive</option>
+                    <option value="all" selected="@(show == "all")">All</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button type="submit"
+                        class="inline-flex w-full items-center justify-center rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-900">
+                    Apply
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+        <table class="min-w-full divide-y divide-zinc-200">
+            <thead class="bg-zinc-50">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Program</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Level</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Duration</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Default Price</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-600">Status</th>
+                    <th class="px-4 py-3"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-200">
+                @foreach (var p in Model)
+                {
+                    <tr class="hover:bg-zinc-50/60">
+                        <td class="px-4 py-3">
+                            <div class="font-semibold">@p.Name</div>
+                            @if (!string.IsNullOrWhiteSpace(p.Description))
+                            {
+                                <div class="text-xs text-zinc-500 line-clamp-2">@p.Description</div>
+                            }
+                        </td>
+                        <td class="px-4 py-3 text-sm">@p.Level</td>
+                        <td class="px-4 py-3 text-sm">@((p.DurationMinutes.HasValue ? p.DurationMinutes + " min" : "—"))</td>
+                        <td class="px-4 py-3 text-sm">R @p.Price.ToString("0.00")</td>
+                        <td class="px-4 py-3">
+                            <span class="rounded-full px-2.5 py-1 text-xs font-semibold @(p.IsActive ? "bg-emerald-100 text-emerald-800" : "bg-zinc-200 text-zinc-800")">
+                                @(p.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-end gap-2">
+                                <a asp-action="Edit" asp-route-id="@p.Id"
+                                   class="rounded-lg bg-black px-3 py-1.5 text-sm text-white hover:bg-zinc-900">Edit</a>
+
+                                <form asp-action="Toggle" asp-route-id="@p.Id" method="post" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50">
+                                        @(p.IsActive ? "Deactivate" : "Activate")
+                                    </button>
+                                </form>
+
+                                <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="inline"
+                                      onsubmit="return confirm('Delete this program? (Only if it has no sessions)');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-sm text-red-700 hover:bg-red-100">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

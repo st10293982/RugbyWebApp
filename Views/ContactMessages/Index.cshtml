@@ -1,0 +1,94 @@
+﻿@model PassItOnAcademy.ViewModels.AdminMessageIndexVM
+@using PassItOnAcademy.Models
+@{
+    ViewData["Title"] = "Messages";
+    int totalPages = (int)Math.Ceiling((double)Model.Total / Model.PageSize);
+}
+
+<section class="space-y-6">
+    <header class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-extrabold">Messages</h1>
+            <p class="text-zinc-600 text-sm">@Model.Total total</p>
+        </div>
+
+        <form method="get" class="flex items-center gap-3">
+            <input type="text" name="q" value="@Model.Q"
+                   placeholder="Search name, email, subject…"
+                   class="w-64 rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FFD200]" />
+            <select name="status" class="rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FFD200]">
+                <option value="">All</option>
+                @foreach (var s in Enum.GetValues<ContactStatus>())
+                {
+                    <option value="@((int)s)" selected="@(Model.Status == s)">
+                        @s
+                    </option>
+                }
+            </select>
+            <button class="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-900">
+                Filter
+            </button>
+        </form>
+    </header>
+
+    <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
+        <table class="min-w-full text-sm">
+            <thead class="bg-zinc-50 text-zinc-600">
+                <tr>
+                    <th class="px-4 py-3 text-left">When</th>
+                    <th class="px-4 py-3 text-left">From</th>
+                    <th class="px-4 py-3 text-left">Subject</th>
+                    <th class="px-4 py-3 text-left">Status</th>
+                    <th class="px-4 py-3"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items.Count == 0)
+                {
+                    <tr>
+                        <td colspan="5" class="px-4 py-6 text-center text-zinc-500">No messages.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var m in Model.Items)
+                    {
+                        <tr class="border-t border-zinc-100 hover:bg-zinc-50">
+                            <td class="px-4 py-3 whitespace-nowrap">@m.CreatedLocal:yyyy-MM-dd HH:mm</td>
+                            <td class="px-4 py-3">
+                                <div class="font-medium">@m.Name</div>
+                                <div class="text-zinc-500">@m.Email@((!string.IsNullOrWhiteSpace(m.Phone) ? " · " + m.Phone : ""))</div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="font-medium">@m.Subject</div>
+                                <div class="text-zinc-500 line-clamp-1">@m.Snippet</div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs @(m.Status == ContactStatus.New ? "bg-[#FFD200] text-black border-[#FFD200]" : "border-zinc-300 text-zinc-700")">
+                                    @m.Status
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <a asp-action="Details" asp-route-id="@m.Id"
+                                   class="rounded-lg border border-zinc-300 px-3 py-1.5 hover:bg-zinc-100">Open</a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (totalPages > 1)
+    {
+        <div class="flex items-center justify-center gap-2">
+            @for (int p = 1; p <= totalPages; p++)
+            {
+                <a asp-action="Index" asp-route-q="@Model.Q" asp-route-status="@((int?)Model.Status)" asp-route-page="@p" asp-route-pageSize="@Model.PageSize"
+                   class="rounded-lg px-3 py-1.5 text-sm @(p == Model.Page ? "bg-black text-white" : "border border-zinc-300 hover:bg-zinc-100")">
+                    @p
+                </a>
+            }
+        </div>
+    }
+</section>

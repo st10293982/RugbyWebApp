@@ -1,0 +1,294 @@
+﻿@*
+  _Layout.cshtml — PassItOnAcademy
+  Brand: Black #000 / Rugby Yellow #FFD200
+*@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - PassItOnAcademy</title>
+
+    <!-- Tailwind output -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="~/images/logo.jpg" />
+</head>
+<body class="min-h-screen bg-zinc-50 text-zinc-900 flex flex-col">
+    <!-- NAVBAR -->
+    <header class="sticky top-0 z-50 border-b border-zinc-200 bg-black/95 backdrop-blur">
+        <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <!-- Brand -->
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="group inline-flex items-center gap-3">
+                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#FFD200] ring-2 ring-[#FFD200]/80 ring-offset-2 ring-offset-black">
+                        <img src="~/images/logo.jpg" alt="Pass It On Academy" class="h-7 w-7 object-contain rounded-full" />
+                    </span>
+                    <span class="text-lg font-extrabold tracking-tight text-white group-hover:text-[#FFD200] transition">
+                        PassItOnAcademy
+                    </span>
+                </a>
+
+                <!-- Desktop menu -->
+                <div class="hidden md:flex items-center gap-6">
+                    <a asp-controller="Home" asp-action="Index" class="text-sm text-zinc-300 hover:text-white">Home</a>
+                    <a asp-controller="Home" asp-action="About" class="text-sm text-zinc-300 hover:text-white">About</a>
+                    <a asp-controller="Home" asp-action="Programs" class="text-sm text-zinc-300 hover:text-white">Programs & Prices</a>
+                    <a asp-controller="Schedule" asp-action="Index" class="text-sm text-zinc-300 hover:text-white">Schedule</a>
+
+                    @* Desktop: My bookings (only when signed in) *@
+                    @if (User?.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="CustomerBookings" asp-action="Mine"
+                           class="text-sm text-zinc-300 hover:text-white">My bookings</a>
+                    }
+
+                    <a asp-controller="Home" asp-action="Contact" class="text-sm text-zinc-300 hover:text-white">Contact</a>
+
+                    @* ADMIN dropdown (desktop) — only for Admin role *@
+                    @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+                    {
+                        <div class="relative">
+                            <button type="button"
+                                    class="inline-flex items-center gap-2 rounded-lg bg-[#FFD200] px-3 py-1.5 text-sm font-semibold text-black hover:brightness-95"
+                                    data-action="toggle-admin"
+                                    aria-haspopup="true" aria-expanded="false">
+                                Admin
+                                <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4"><path d="M7 10l5 5 5-5z" /></svg>
+                            </button>
+                            <div class="absolute right-0 mt-2 hidden min-w-56 overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-lg"
+                                 data-target="admin-menu" role="menu" aria-label="Admin menu">
+                                <a asp-controller="Sessions" asp-action="Index" class="block px-4 py-2 text-sm hover:bg-zinc-50" role="menuitem">Sessions</a>
+                                <a asp-controller="Programs" asp-action="Index" class="block px-4 py-2 text-sm hover:bg-zinc-50" role="menuitem">Programs & Prices</a>
+                                <a asp-controller="Bookings" asp-action="Index" class="block px-4 py-2 text-sm hover:bg-zinc-50" role="menuitem">Bookings</a>
+                                <a asp-controller="Payments" asp-action="Index" class="block px-4 py-2 text-sm hover:bg-zinc-50" role="menuitem">Payments</a>
+                                <a asp-controller="ContactMessages" asp-action="Index" class="block px-4 py-2 text-sm hover:bg-zinc-50" role="menuitem">Contact messages</a>
+                                <div class="border-t my-1"></div>
+                                <a asp-controller="Announcements" asp-action="Index" class="block px-4 py-2 text-sm hover:bg-zinc-50" role="menuitem">Announcements</a>
+                                <a asp-controller="Customers" asp-action="Index" class="block px-4 py-2 text-sm hover:bg-zinc-50" role="menuitem">Customers</a>
+                                <a asp-controller="Settings" asp-action="Index" class="block px-4 py-2 text-sm hover:bg-zinc-50" role="menuitem">Settings</a>
+                                <a asp-controller="Audit" asp-action="Index" class="block px-4 py-2 text-sm hover:bg-zinc-50" role="menuitem">Audit</a>
+                                <a asp-controller="Exports" asp-action="Index" class="block px-4 py-2 text-sm hover:bg-zinc-50" role="menuitem">Exports</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Auth buttons / user menu -->
+                <div class="hidden md:block">
+                    <partial name="_LoginPartial" />
+                </div>
+
+                <!-- Mobile toggle -->
+                <button type="button"
+                        class="md:hidden inline-flex items-center justify-center rounded-xl p-2 text-zinc-300 hover:text-white hover:bg-zinc-800 focus:outline-none"
+                        data-action="toggle-mobile" aria-controls="mobile-menu" aria-expanded="false">
+                    <span class="sr-only">Open menu</span>
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+                </button>
+            </div>
+
+            <!-- Mobile drawer -->
+            <div id="mobile-menu" class="md:hidden hidden flex-col gap-4 py-3" data-target="mobile-menu">
+                <a asp-controller="Home" asp-action="Index" class="block rounded-lg px-3 py-2 text-zinc-200 hover:bg-zinc-800">Home</a>
+                <a asp-controller="Home" asp-action="About" class="block rounded-lg px-3 py-2 text-zinc-200 hover:bg-zinc-800">About</a>
+                <a asp-controller="Home" asp-action="Programs" class="block rounded-lg px-3 py-2 text-zinc-200 hover:bg-zinc-800">Programs & Prices</a>
+                <a asp-controller="Schedule" asp-action="Index" class="block rounded-lg px-3 py-2 text-zinc-200 hover:bg-zinc-800">Schedule</a>
+
+                @* Mobile: My bookings (only when signed in) *@
+                @if (User?.Identity?.IsAuthenticated == true)
+                {
+                    <a asp-controller="CustomerBookings" asp-action="Mine"
+                       class="block rounded-lg px-3 py-2 text-zinc-200 hover:bg-zinc-800">My bookings</a>
+                }
+
+                <a asp-controller="Home" asp-action="Contact" class="block rounded-lg px-3 py-2 text-zinc-200 hover:bg-zinc-800">Contact</a>
+
+                @* ADMIN section (mobile) — only for Admin role *@
+                @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+                {
+                    <div class="mt-2 rounded-lg bg-[#FFD200] p-2">
+                        <div class="px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-black/70">Admin</div>
+                        <a asp-controller="Sessions" asp-action="Index" class="block rounded-md px-2 py-1 text-sm font-semibold text-black hover:bg-black/10">Sessions</a>
+                        <a asp-controller="Programs" asp-action="Index" class="mt-1 block rounded-md px-2 py-1 text-sm font-semibold text-black hover:bg-black/10">Programs & Prices</a>
+                        <a asp-controller="Bookings" asp-action="Index" class="mt-1 block rounded-md px-2 py-1 text-sm font-semibold text-black hover:bg-black/10">Bookings</a>
+                        <a asp-controller="Payments" asp-action="Index" class="mt-1 block rounded-md px-2 py-1 text-sm font-semibold text-black hover:bg-black/10">Payments</a>
+                        <a asp-controller="ContactMessages" asp-action="Index" class="mt-1 block rounded-md px-2 py-1 text-sm font-semibold text-black hover:bg-black/10">Contact messages</a>
+                        <div class="mt-1 h-px bg-black/20"></div>
+                        <a asp-controller="Announcements" asp-action="Index" class="mt-1 block rounded-md px-2 py-1 text-sm font-semibold text-black hover:bg-black/10">Announcements</a>
+                        <a asp-controller="Customers" asp-action="Index" class="mt-1 block rounded-md px-2 py-1 text-sm font-semibold text-black hover:bg-black/10">Customers</a>
+                        <a asp-controller="Settings" asp-action="Index" class="mt-1 block rounded-md px-2 py-1 text-sm font-semibold text-black hover:bg-black/10">Settings</a>
+                        <a asp-controller="Audit" asp-action="Index" class="mt-1 block rounded-md px-2 py-1 text-sm font-semibold text-black hover:bg-black/10">Audit</a>
+                        <a asp-controller="Exports" asp-action="Index" class="mt-1 block rounded-md px-2 py-1 text-sm font-semibold text-black hover:bg-black/10">Exports</a>
+                    </div>
+                }
+
+                <div class="border-t border-zinc-800 pt-3">
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- MAIN -->
+    <main class="flex-1">
+        @* Full-bleed area (e.g., hero). Use in a view as: @section FullWidthTop { ... } *@
+        @RenderSection("FullWidthTop", required: false)
+
+        @* Standard constrained content *@
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- FOOTER with animated yellow wave -->
+    <footer class="relative isolate">
+        <!-- Wave background (pure SVG animation) -->
+        <div class="pointer-events-none absolute inset-x-0 -top-40 h-64 md:h-72 lg:h-80">
+            <svg class="h-full w-full" viewBox="0 0 1600 900" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <path id="waveY" fill="#FFD200"
+                          d="M-363.852,502.589c0,0,236.988-41.997,505.475,0
+                             s371.981,38.998,575.971,0s293.985-39.278,505.474,5.859
+                             s493.475,48.368,716.963-4.995v560.106H-363.852V502.589z" />
+                </defs>
+                <g opacity="0.9">
+                    <use xlink:href="#waveY" opacity=".45">
+                        <animateTransform attributeName="transform" attributeType="XML" type="translate"
+                                          dur="8s" calcMode="spline"
+                                          values="270 230; -334 180; 270 230"
+                                          keyTimes="0; .5; 1"
+                                          keySplines="0.42,0,0.58,1;0.42,0,0.58,1"
+                                          repeatCount="indefinite" />
+                    </use>
+                    <use xlink:href="#waveY" opacity=".65">
+                        <animateTransform attributeName="transform" attributeType="XML" type="translate"
+                                          dur="6s" calcMode="spline"
+                                          values="-270 230;243 220;-270 230"
+                                          keyTimes="0; .6; 1"
+                                          keySplines="0.42,0,0.58,1;0.42,0,0.58,1"
+                                          repeatCount="indefinite" />
+                    </use>
+                    <use xlink:href="#waveY" opacity=".9">
+                        <animateTransform attributeName="transform" attributeType="XML" type="translate"
+                                          dur="4s" calcMode="spline"
+                                          values="0 230;-140 200;0 230"
+                                          keyTimes="0; .4; 1"
+                                          keySplines="0.42,0,0.58,1;0.42,0,0.58,1"
+                                          repeatCount="indefinite" />
+                    </use>
+                </g>
+            </svg>
+        </div>
+
+        <!-- Footer body -->
+        <div class="relative bg-black text-zinc-50 pt-28 md:pt-36">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-10 md:pb-16">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-extrabold">Ready to improve your game?</h2>
+                        <p class="text-sm md:text-base text-zinc-300 mt-1">Private rugby coaching focused on individual positions.</p>
+                    </div>
+                    <a asp-controller="Schedule" asp-action="Index"
+                       class="inline-flex items-center rounded-full bg-[#FFD200] px-6 py-2.5 text-sm font-semibold text-black hover:brightness-95">
+                        Book a Session
+                    </a>
+                </div>
+
+                <div class="mt-10 md:mt-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-10">
+                    <!-- Logo + socials -->
+                    <div class="flex flex-col items-start">
+                        <div class="inline-flex items-center gap-3">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#FFD200] ring-2 ring-[#FFD200]/80 ring-offset-2 ring-offset-black">
+                                <img src="~/images/logo.jpg" alt="Pass It On Academy" class="h-8 w-8 object-contain rounded-full" />
+                            </span>
+                            <span class="text-xl font-extrabold">PassItOnAcademy</span>
+                        </div>
+                        <div class="mt-4 flex items-center gap-5 text-zinc-300">
+                            <a href="#" aria-label="X/Twitter" class="hover:text-white">
+                                <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path d="M18.244 3H21l-6.53 7.46L22.5 21h-6.59l-5.16-6.2L4.5 21H2l7.08-8.08L1.5 3h6.59l4.7 5.64L18.244 3Zm-2.31 16h1.73L7.14 5h-1.8l10.59 14Z" /></svg>
+                            </a>
+                            <a href="#" aria-label="Instagram" class="hover:text-white">
+                                <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm0 2h10c1.7 0 3 1.3 3 3v10c0 1.7-1.3 3-3 3H7c-1.7 0-3-1.3-3-3V7c0-1.7 1.3-3 3-3zm11 1.8a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4zM12 7a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6z" /></svg>
+                            </a>
+                            <a href="#" aria-label="LinkedIn" class="hover:text-white">
+                                <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path d="M6.94 6.5A2.44 2.44 0 114.5 4.06 2.44 2.44 0 016.94 6.5zM4.75 8.5h4.38V20H4.75zM13 8.5h4.2v1.57h.06c.58-1.1 2-1.8 3.3-1.8 3.53 0 4.18 2.1 4.18 4.84V20h-4.38v-5.1c0-1.22-.02-2.8-1.7-2.8-1.7 0-1.96 1.33-1.96 2.7V20H13z" /></svg>
+                            </a>
+                            <a href="#" aria-label="Facebook" class="hover:text-white">
+                                <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path d="M13 22v-8h3l1-4h-4V7.5c0-1.16.38-2 2-2h2V2.1C16.62 2 15.26 2 14 2c-3 0-5 1.82-5 5.2V10H6v4h3v8h4z" /></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Link columns -->
+                    <nav class="w-full md:w-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-sm">
+                        <ul class="space-y-2">
+                            <li class="text-zinc-400 tracking-wide text-xs">ACADEMY</li>
+                            <li><a asp-controller="Home" asp-action="Programs" class="hover:text-white text-zinc-300">Programs</a></li>
+                            <li><a asp-controller="Home" asp-action="About" class="hover:text-white text-zinc-300">About</a></li>
+                            <li><a asp-controller="Home" asp-action="Contact" class="hover:text-white text-zinc-300">Contact</a></li>
+                        </ul>
+                        <ul class="space-y-2">
+                            <li class="text-zinc-400 tracking-wide text-xs">BOOKING</li>
+                            <li><a asp-controller="Schedule" asp-action="Index" class="hover:text-white text-zinc-300">Schedule</a></li>
+                            <li><a asp-controller="CustomerBookings" asp-action="Mine" class="hover:text-white text-zinc-300">My bookings</a></li>
+                            <li><a asp-controller="Home" asp-action="Privacy" class="hover:text-white text-zinc-300">Privacy</a></li>
+                        </ul>
+                        <ul class="space-y-2">
+                            <li class="text-zinc-400 tracking-wide text-xs">ACCOUNT</li>
+                            <li><a asp-area="Identity" asp-page="/Account/Login" class="hover:text-white text-zinc-300">Login</a></li>
+                            <li><a asp-area="Identity" asp-page="/Account/Register" class="hover:text-white text-zinc-300">Register</a></li>
+                            <li><a asp-area="Identity" asp-page="/Account/Manage/Index" class="hover:text-white text-zinc-300">My Account</a></li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <!-- Tiny bottom row -->
+                <div class="mt-10 border-t border-zinc-800 pt-6 flex items-center justify-between text-xs text-zinc-400">
+                    <p>© @DateTime.Now.Year PassItOnAcademy</p>
+                    <a asp-controller="Home" asp-action="Privacy" class="hover:text-zinc-200">Privacy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    @RenderSection("Scripts", required: false)
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('[data-action="toggle-mobile"]')
+          ?.addEventListener('click', () => {
+            const el = document.querySelector('[data-target="mobile-menu"]');
+            if (el) {
+                el.classList.toggle('hidden');
+                const expanded = !el.classList.contains('hidden');
+                document.querySelector('[data-action="toggle-mobile"]')?.setAttribute('aria-expanded', expanded.toString());
+            }
+          });
+
+        // Admin dropdown toggle (desktop)
+        document.querySelector('[data-action="toggle-admin"]')
+          ?.addEventListener('click', (e) => {
+            e.preventDefault();
+            const menu = document.querySelector('[data-target="admin-menu"]');
+            if (menu) {
+                menu.classList.toggle('hidden');
+                const expanded = !menu.classList.contains('hidden');
+                e.currentTarget.setAttribute('aria-expanded', expanded.toString());
+            }
+          });
+
+        // Close admin dropdown on outside click
+        document.addEventListener('click', (e) => {
+            const button = document.querySelector('[data-action="toggle-admin"]');
+            const menu = document.querySelector('[data-target="admin-menu"]');
+            if (!button || !menu) return;
+            if (!button.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.add('hidden');
+                button.setAttribute('aria-expanded', 'false');
+            }
+        });
+    </script>
+</body>
+</html>

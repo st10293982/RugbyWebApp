@@ -1,0 +1,24 @@
+﻿@model IEnumerable<PassItOnAcademy.Models.Announcement>
+@{
+    ViewData["Title"] = "Announcements";
+}
+<div class="flex items-center justify-between mb-4">
+    <h1 class="text-2xl font-extrabold">Announcements</h1>
+    <a asp-action="Create" class="rounded-xl bg-[#FFD200] px-4 py-2 text-sm font-semibold text-black">New</a>
+</div>
+@if (TempData["Msg"] is string m)
+{
+    <div class="mb-4 rounded-xl border p-3 bg-white">@m</div>
+}
+<div class="space-y-3">
+    @foreach (var a in Model)
+    {
+        <div class="rounded-xl border bg-white p-4">
+            <div class="flex items-center justify-between">
+                <div class="font-semibold">@a.Title</div>
+                <a asp-action="Details" asp-route-id="@a.Id" class="text-sm underline">Open</a>
+            </div>
+            <div class="text-xs text-zinc-600 mt-1">@(a.IsGlobal ? "Global" : $"Session #{a.SessionId}") · @a.CreatedUtc.ToLocalTime()</div>
+        </div>
+    }
+</div>

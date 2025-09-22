@@ -1,0 +1,21 @@
+﻿@model PassItOnAcademy.ViewModels.PayFastRedirectVM
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Redirecting to PayFast…</title>
+</head>
+<body>
+    <p>Redirecting to PayFast…</p>
+    <form id="pf" action="@Model.ActionUrl" method="post">
+        @foreach (var kv in Model.Fields)
+        {
+            <input type="hidden" name="@kv.Key" value="@kv.Value" />
+        }
+    </form>
+    <script>document.getElementById('pf').submit();</script>
+</body>
+</html>
