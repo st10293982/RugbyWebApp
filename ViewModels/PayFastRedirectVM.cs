@@ -8,3 +8,4 @@ namespace PassItOnAcademy.ViewModels
         public Dictionary<string, string> Fields { get; set; } = new();
     }
 }
+ 

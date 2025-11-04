@@ -132,7 +132,7 @@
             border-radius: 9999px;
         }
 
-        /* ===== ONLY CHANGE YOU ASKED FOR: make all text in the card body bold ===== */
+        /* Keep your original “bold body” */
         .p-body, .p-body * {
             font-weight: 700 !important;
         }
@@ -140,7 +140,84 @@
         .p-media .p-chip {
             font-weight: 800 !important;
         }
-        /* ======================================================================= */
+
+        /* ------------------------------------------------------------------
+                   VISIBILITY BOOST (no markup changes) — maximises contrast & size
+                   ------------------------------------------------------------------ */
+        .p-card {
+            background: #0b0b0c;
+            border: 1px solid #1c1c1c;
+        }
+
+        /* Make all text in card area fully white unless overridden */
+        .p-body, .p-body * {
+            color: #ffffff !important;
+        }
+
+        .p-body {
+            font-size: 15px;
+        }
+
+            /* Meta/date line */
+            .p-body .p-meta,
+            .p-body .text-zinc-300 {
+                color: #e5e7eb !important;
+                font-size: 12px;
+                letter-spacing: .04em;
+                text-transform: uppercase;
+            }
+
+            /* Title */
+            .p-body h3 {
+                color: #ffffff !important;
+                font-weight: 800 !important;
+                font-size: 1.15rem;
+                line-height: 1.35;
+            }
+
+            /* Program + Location */
+            .p-body .p-sub,
+            .p-body .p-loc,
+            .p-body .text-zinc-200 {
+                color: #f3f4f6 !important;
+                font-size: 14px;
+            }
+
+            /* Price & Spots */
+            .p-body .p-row,
+            .p-body .text-sm {
+                font-size: 14px;
+            }
+
+            .p-body .p-price,
+            .p-body .p-left,
+            .p-body .font-semibold {
+                color: #ffffff !important;
+                font-weight: 800 !important;
+            }
+
+        /* Buttons: outline visible on dark, yellow primary stays */
+        .btn-outline {
+            border: 1px solid #ffffff !important;
+            color: #ffffff !important;
+            background: transparent;
+        }
+
+            .btn-outline:hover {
+                background: #ffffff !important;
+                color: #0b0b0c !important;
+            }
+
+        .btn-primary {
+            background: #FFD200 !important;
+            color: #0b0b0c !important;
+            font-weight: 800;
+        }
+
+        /* Add a subtle text-shadow over media in case any text ever sits there */
+        .p-media, .p-media * {
+            text-shadow: 0 1px 2px rgba(0,0,0,.6);
+        }
     </style>
 }
 
@@ -238,38 +315,38 @@
                     </div>
 
                     <!-- Body (consistent min height) -->
-                    <div class="p-body px-5 pt-4 pb-2 text-zinc-100/90">
-                        <div class="text-[11px] uppercase tracking-wide text-zinc-300">
+                    <div class="p-body px-5 pt-4 pb-2">
+                        <div class="p-meta">
                             @s.StartLocal.ToString("ddd, dd MMM yyyy • HH:mm")
                         </div>
 
-                        <h3 class="mt-1 text-white font-semibold">@s.Title</h3>
+                        <h3 class="mt-1">@s.Title</h3>
 
                         @if (!string.IsNullOrWhiteSpace(s.ProgramName))
                         {
-                            <div class="mt-0.5 text-[12px] text-zinc-300">@s.ProgramName</div>
+                            <div class="p-sub mt-0.5">@s.ProgramName</div>
                         }
 
                         @if (!string.IsNullOrWhiteSpace(s.Location))
                         {
-                            <div class="mt-2 text-sm text-zinc-200">@s.Location</div>
+                            <div class="p-loc mt-2">@(s.Location)</div>
                         }
 
-                        <div class="mt-3 flex items-center justify-between text-sm">
-                            <div>Price: <span class="font-semibold text-white">R @s.Price.ToString("0.00")</span></div>
-                            <div class="text-zinc-300">Spots left: <span class="font-semibold text-white">@s.SpotsLeft</span></div>
+                        <div class="p-row mt-3 flex items-center justify-between">
+                            <div>Price: <span class="p-price">R @s.Price.ToString("0.00")</span></div>
+                            <div>Spots left: <span class="p-left">@s.SpotsLeft</span></div>
                         </div>
                     </div>
 
                     <!-- Footer (fixed position area) -->
                     <div class="px-5 pb-5 pt-3 flex items-center gap-2">
                         <a asp-action="Details" asp-route-id="@s.Id"
-                           class="inline-flex items-center rounded-xl border border-white/30 px-3 py-1.5 text-sm text-white hover:bg-white/10">
+                           class="btn-outline inline-flex items-center rounded-xl px-3 py-1.5 text-sm">
                             Details
                         </a>
 
                         <a asp-controller="CustomerBookings" asp-action="Create" asp-route-id="@s.Id"
-                           class="inline-flex items-center rounded-xl bg-[#FFD200] px-3 py-1.5 text-sm font-semibold text-black hover:brightness-95 @(s.SpotsLeft <= 0 ? "pointer-events-none opacity-50" : "")">
+                           class="btn-primary inline-flex items-center rounded-xl px-3 py-1.5 text-sm @(s.SpotsLeft <= 0 ? "pointer-events-none opacity-50" : "")">
                             Book
                         </a>
                     </div>

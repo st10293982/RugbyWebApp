@@ -41,20 +41,17 @@
 
         /* ---------- Motion system (respects Reduced Motion) ---------- */
         @@media (prefers-reduced-motion:no-preference) {
-            .reveal
+            .reveal {
+                opacity: 0;
+                transform: translateY(24px) scale(.98);
+                transition: opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1);
+                will-change: transform, opacity;
+            }
 
-        {
-            opacity: 0;
-            transform: translateY(24px) scale(.98);
-            transition: opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1);
-            will-change: transform, opacity;
-        }
-
-        .reveal.in {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-
+                .reveal.in {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
         }
 
         /* Subtle film grain over hero */
@@ -167,13 +164,31 @@
             transform: translateY(var(--py,0));
             transition: transform .1s linear;
         }
+
+        /* Ensure poster shows if autoplay blocked */
+        #heroVideo {
+            background: #000;
+        }
     </style>
 
     <!-- HERO (full-bleed) -->
     <section class="relative h-[90vh] md:h-screen w-full overflow-hidden hero-grain">
         <div class="absolute inset-0 hero-bg parallax">
-            <img src="~/images/image1.jpg" alt="Rugby training"
-                 class="h-full w-full object-cover block" />
+            <!-- Background video -->
+            <video id="heroVideo"
+                   class="h-full w-full object-cover block"
+                   autoplay
+                   muted
+                   loop
+                   playsinline
+                   preload="metadata"
+                   poster="~/images/hero-poster.jpg">
+                <source src="~/videos/hero-setion-video.mp4" type="video/mp4" />
+                <!-- Fallback image for very old browsers -->
+                <img src="~/images/image1.jpg" alt="Rugby training">
+            </video>
+
+            <!-- Gradient overlay -->
             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-transparent"></div>
         </div>
 
@@ -264,26 +279,26 @@
                     <!-- 3D / GLASS CARD (Tilt + Glow) -->
                     <div class="group [perspective:1200px] reveal">
                         <div class="tilt-card relative h-full rounded-2xl bg-gradient-to-br from-white to-zinc-50 border border-zinc-200
-                                            shadow-[0_10px_20px_-8px_rgba(0,0,0,0.12)]
-                                            transition-all duration-500 ease-out">
+                                                    shadow-[0_10px_20px_-8px_rgba(0,0,0,0.12)]
+                                                    transition-all duration-500 ease-out">
 
                             <!-- Decorative glass layer (non-interactive) -->
                             <div class="pointer-events-none absolute inset-2 rounded-[22px] md:rounded-[26px]
-                                                bg-gradient-to-b from-white/60 to-white/20
-                                                border-l border-b border-white/70
-                                                [transform:translateZ(25px)]
-                                                transition-all duration-500 ease-out backdrop-blur-sm">
+                                                        bg-gradient-to-b from-white/60 to-white/20
+                                                        border-l border-b border-white/70
+                                                        [transform:translateZ(25px)]
+                                                        transition-all duration-500 ease-out backdrop-blur-sm">
                             </div>
 
                             <!-- Optional top-right bubbles (non-interactive) -->
                             <div class="pointer-events-none absolute right-1.5 top-1.5 [transform-style:preserve-3d]">
                                 <span class="absolute right-1.5 top-1.5 w-20 md:w-24 aspect-square rounded-full
-                                                     bg-emerald-300/10 backdrop-blur-[1px]
-                                                     [transform:translateZ(30px)] transition-all duration-500 ease-out"></span>
+                                                             bg-emerald-300/10 backdrop-blur-[1px]
+                                                             [transform:translateZ(30px)] transition-all duration-500 ease-out"></span>
                                 <span class="absolute right-5 top-5 w-12 md:w-14 aspect-square rounded-full
-                                                     bg-teal-400/10 [transform:translateZ(50px)]
-                                                     transition-all duration-500 ease-out delay-150
-                                                     group-hover:[transform:translateZ(70px)]"></span>
+                                                             bg-teal-400/10 [transform:translateZ(50px)]
+                                                             transition-all duration-500 ease-out delay-150
+                                                             group-hover:[transform:translateZ(70px)]"></span>
                             </div>
 
                             <div class="tilt-lift relative z-10">
@@ -322,7 +337,7 @@
                                     <div class="mt-4 flex items-center gap-2">
                                         <a asp-controller="Schedule" asp-action="Index"
                                            class="inline-flex items-center rounded-xl bg-[#FFD200] px-3 py-1.5 text-sm font-semibold text-black
-                                                              hover:brightness-95 transition btn-sheen magnet">
+                                                                      hover:brightness-95 transition btn-sheen magnet">
                                             Book now
                                         </a>
                                     </div>
@@ -432,5 +447,29 @@
       };
       document.addEventListener('scroll', onScroll, {passive:true});
       onScroll();
+
+      // --- HERO video controls (autoplay, visibility, reduced motion) ---
+      const heroVideo = document.getElementById('heroVideo');
+      if (heroVideo) {
+        const tryPlay = async () => {
+          try { await heroVideo.play(); } catch { heroVideo.pause(); }
+        };
+        if (prefersReduced) {
+          heroVideo.removeAttribute('autoplay');
+          heroVideo.pause();
+        } else {
+          // Only play when at least 25% visible
+          const vIO = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+              if (e.isIntersecting) tryPlay(); else heroVideo.pause();
+            });
+          }, { threshold: 0.25 });
+          vIO.observe(heroVideo);
+
+          // Ensure muted/inline before play (iOS)
+          heroVideo.setAttribute('muted', 'muted');
+          heroVideo.setAttribute('playsinline', 'playsinline');
+        }
+      }
     })();
 </script>

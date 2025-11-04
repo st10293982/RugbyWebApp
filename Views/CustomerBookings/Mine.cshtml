@@ -1,7 +1,9 @@
 ﻿@model IEnumerable<PassItOnAcademy.Models.Booking>
 @{
     ViewData["Title"] = "My bookings";
+    var nowUtc = DateTime.UtcNow;
 }
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="flex items-end justify-between gap-4">
         <div>
@@ -29,10 +31,23 @@
             @foreach (var b in Model)
             {
                 var s = b.Session!;
-                var spotsLeft = Math.Max(0, s.Capacity - s.Bookings.Count(x => x.Status == PassItOnAcademy.Models.BookingStatus.Booked));
                 var startLocal = DateTime.SpecifyKind(s.StartUtc, DateTimeKind.Utc).ToLocalTime();
                 var endLocal = DateTime.SpecifyKind(s.EndUtc, DateTimeKind.Utc).ToLocalTime();
-                var canCancel = b.Status == PassItOnAcademy.Models.BookingStatus.Booked && s.StartUtc > DateTime.UtcNow.AddHours(24);
+
+                // count Booked + Pending to avoid oversell
+                var spotsLeft = Math.Max(
+                0,
+                s.Capacity - s.Bookings.Count(x =>
+                x.Status == PassItOnAcademy.Models.BookingStatus.Booked
+                || x.Status == PassItOnAcademy.Models.BookingStatus.Pending)
+                );
+
+                // allow cancelling:
+                // - Pending: anytime
+                // - Booked: only if > 24h before start
+                var canCancel =
+                b.Status == PassItOnAcademy.Models.BookingStatus.Pending
+                || (b.Status == PassItOnAcademy.Models.BookingStatus.Booked && s.StartUtc > nowUtc.AddHours(24));
 
                 <div class="group overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
                     <div class="relative h-40 w-full bg-zinc-100">
@@ -77,8 +92,11 @@
 
                             @if (canCancel)
                             {
-                                <form asp-action="Cancel" method="post" class="inline">
-                                    <input type="hidden" name="id" value="@b.Id" />
+                                <!-- IMPORTANT: use asp-route-id to satisfy attribute route /cancel/{id:int} -->
+                                <form asp-controller="CustomerBookings"
+                                      asp-action="Cancel"
+                                      asp-route-id="@b.Id"
+                                      method="post" class="inline">
                                     @Html.AntiForgeryToken()
                                     <button type="submit"
                                             class="inline-flex items-center rounded-xl bg-black text-white px-3 py-1.5 text-sm hover:bg-black/90">

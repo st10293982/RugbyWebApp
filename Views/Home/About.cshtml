@@ -5,69 +5,115 @@
 @section FullWidthTop {
     <style>
         /* --- Page-local effects (no external deps) --- */
-
-        /* Parallax-ish hero image */
         .hero-fixed {
             background-attachment: fixed;
             background-size: cover;
             background-position: center;
         }
 
-        /* Soft float-in */
         @@keyframes fadeUp {
-            from
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
 
-        {
-            opacity: 0;
-            transform: translateY(14px)
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0)
-        }
-
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .animate-fadeUp {
-            animation: fadeUp .6s ease-out both
+            animation: fadeUp .6s ease-out both;
         }
 
-        /* 3D tilt on hover */
         .tilt-3d {
             transform-style: preserve-3d;
             transform: perspective(1100px) rotateX(0) rotateY(0);
-            transition: transform .5s ease, box-shadow .4s ease
+            transition: transform .5s ease, box-shadow .4s ease;
         }
 
             .tilt-3d:hover {
-                transform: perspective(1100px) rotateX(6deg) rotateY(-6deg) translateZ(0)
+                transform: perspective(1100px) rotateX(6deg) rotateY(-6deg) translateZ(0);
             }
 
         .lift-z {
-            transform: translateZ(30px)
+            transform: translateZ(30px);
         }
 
-        /* Tiny noise overlay (data-URI) */
         .noise {
             background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.04'/></svg>");
             background-size: 200px 200px;
             pointer-events: none;
         }
+
+        /* --------- VISIBILITY UPGRADE FOR JOURNEY CARDS ---------- */
+        .journey-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+            .journey-card img {
+                display: block;
+                width: 100%;
+                height: 12rem;
+                object-fit: cover;
+            }
+        @@media (min-width:768px) {
+            .journey-card img
+
+        {
+            height: 12rem;
+        }
+
+        }
+
+        /* Dark gradient that strengthens on hover */
+        .journey-card .overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.6) 38%, rgba(0,0,0,.15) 72%, rgba(0,0,0,0) 100%);
+            opacity: .95;
+            transition: opacity .25s ease;
+        }
+
+        .journey-card:hover .overlay {
+            opacity: 1;
+        }
+
+        /* Caption with blur + shadow for maximum contrast */
+        .journey-card figcaption {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: .7rem 1rem;
+            color: #fff;
+            font-size: .82rem;
+            line-height: 1.25rem;
+            backdrop-filter: blur(2px);
+            text-shadow: 0 1px 2px rgba(0,0,0,.9), 0 4px 12px rgba(0,0,0,.6);
+        }
+        @@media (min-width:768px) {
+            .journey-card figcaption
+
+        {
+            font-size: .92rem;
+        }
+
+        }
+        /* --------------------------------------------------------- */
     </style>
 
-    <!-- HERO -->
+    <!-- HERO (unchanged) -->
     <section class="relative isolate overflow-clip">
-        <!-- use a stronger composition (you already have childtraining4.jpg) -->
         <div class="hero-fixed h-[46vh] md:h-[56vh] w-full"
-             style="background-image:url('/images/childtraining4.jpg')"></div>
+             style="background-image:url('@Url.Content("~/images/childtraining4.jpg")')"></div>
 
-        <!-- angled gradient mask -->
         <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-transparent"></div>
         <div class="pointer-events-none absolute inset-0 [mask-image:linear-gradient(10deg,black_55%,transparent_80%)] bg-gradient-to-r from-emerald-400/10 via-cyan-300/10 to-yellow-300/10"></div>
         <div class="pointer-events-none absolute inset-0 noise"></div>
 
-        <!-- headline glass bar -->
         <div class="absolute inset-0 flex items-end">
             <div class="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 pb-8">
                 <div class="inline-flex flex-col gap-2 rounded-2xl backdrop-blur-md bg-white/10 border border-white/20 px-5 md:px-7 py-4 animate-fadeUp">
@@ -75,7 +121,9 @@
                         About PassItOn Academy
                     </h1>
                     <p class="text-zinc-100/90 md:text-lg max-w-3xl">
-                        Position-specific rugby coaching that builds technique, confidence, and game understanding.
+                        At its core, Pass It On is about sharing rugby knowledge and experience—handing down tips and
+                        advice to help youngsters grow on their rugby journey. We offer specialised, needs-based coaching
+                        in a relaxed but focused environment—let’s grow together as players of this great game.
                     </p>
                 </div>
             </div>
@@ -84,91 +132,63 @@
 }
 
 <section class="space-y-12 md:space-y-14">
-    <!-- Mission + Promise (glass panels) -->
+    <!-- What Pass It On is all about -->
     <div class="grid gap-6 md:grid-cols-3">
         <div class="md:col-span-2 tilt-3d rounded-2xl border border-zinc-200/70 bg-white/60 backdrop-blur-md shadow-[0_10px_30px_-10px_rgba(0,0,0,.15)]">
             <div class="p-6 md:p-7 lift-z">
-                <h2 class="text-xl md:text-2xl font-extrabold tracking-tight text-zinc-900">Our Mission</h2>
-                <p class="mt-2 text-sm md:text-base text-zinc-700">
-                    Help players of all levels develop the skills and decision-making they need to perform under pressure.
-                    We focus on <span class="font-semibold">position-specific mechanics</span> and realistic
-                    <span class="font-semibold">game scenarios</span>, so gains on the training pitch translate to match day.
+                <h2 class="text-xl md:text-2xl font-extrabold tracking-tight text-zinc-900">What Pass It On is all about</h2>
+                <p class="mt-2 text-sm md:text-base text-zinc-700 whitespace-pre-line">
+                    At the core Pass It On stands for passing on my knowledge and experience in the game, creating an awesome opportunity to hand down valuable tips and advice to youngster looking to grow in their rugby journey. Growth is the key to the game, whether in primary school getting to grips with you position or in high school and preparing yourself for the level you want to preform at.
+                    Pass It On is specialised rugby coaching tailored to your needs. Its personal and relaxed at hand with a mindset to improve. Join us and let us grow together as players of this wonderful game called rugby.
                 </p>
-
-                <h3 class="mt-6 text-lg font-bold text-zinc-900">How we coach</h3>
-                <ul class="mt-3 grid gap-3 sm:grid-cols-2 text-sm md:text-[15px] text-zinc-700">
-                    <li class="rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur p-3">✔ Skill blocks with clear cues &amp; progressions</li>
-                    <li class="rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur p-3">✔ Game-speed decision reps &amp; constraints</li>
-                    <li class="rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur p-3">✔ Individual feedback and micro-goals</li>
-                    <li class="rounded-xl border border-zinc-200/70 bg-white/70 backdrop-blur p-3">✔ Accountability that keeps momentum between sessions</li>
-                </ul>
             </div>
         </div>
 
+        <!-- A bit about me -->
         <aside class="tilt-3d rounded-2xl border border-zinc-200/70 bg-white/60 backdrop-blur-md shadow-[0_10px_30px_-10px_rgba(0,0,0,.15)]">
             <div class="p-6 md:p-7 lift-z">
-                <h3 class="text-lg md:text-xl font-bold text-zinc-900">Coach’s Promise</h3>
-                <p class="mt-2 text-sm md:text-[15px] text-zinc-700">
-                    Every player gets a plan that fits their position, stage and confidence level. Sessions are
-                    <span class="font-semibold">challenging</span> but <span class="font-semibold">winnable</span>,
-                    so confidence rises with skill.
+                <h3 class="text-lg md:text-xl font-bold text-zinc-900">A bit about me</h3>
+                <p class="mt-2 text-sm md:text-[15px] text-zinc-700 whitespace-pre-line">
+                    My name is Zak Smith currently a student athlete at UKZN in Durban. In my rugby journey I’ve been fortunate to experience several different rugby environments surrounding myself with great players and coaches, which has shaped the player and coach I am today. Being in a space where you are still a player yourself and get the privilege to coach as well is an amazing opportunity, I get to learn and teach at the same time.
                 </p>
-                <div class="mt-4 rounded-xl bg-black text-zinc-100 p-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,.08)]">
-                    <p class="text-sm md:text-[15px]">“We train how we play. Clarity first, speed second — pressure last.”</p>
-                </div>
             </div>
         </aside>
     </div>
 
-    <!-- Gallery (hover zoom + glow) -->
+    <!-- My rugby journey (3 images in order you provided) -->
     <div>
-        <h2 class="text-xl md:text-2xl font-extrabold tracking-tight mb-3">On the ground</h2>
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <figure class="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white">
-                <img src="~/images/childtraining2.jpg" alt="Passing drill"
-                     class="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-[1.06]" />
-                <div class="pointer-events-none absolute inset-0 ring-0 group-hover:ring-2 group-hover:ring-emerald-300/50 rounded-xl transition"></div>
-            </figure>
-            <figure class="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white">
-                <img src="~/images/childtraining3.jpg" alt="Kicking cues"
-                     class="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-[1.06]" />
-                <div class="pointer-events-none absolute inset-0 ring-0 group-hover:ring-emerald-300/50 group-hover:ring-2 rounded-xl transition"></div>
-            </figure>
-            <figure class="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white">
-                <img src="~/images/childtraining4.jpg" alt="Footwork and evasion"
-                     class="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-[1.06]" />
-                <div class="pointer-events-none absolute inset-0 ring-0 group-hover:ring-emerald-300/50 group-hover:ring-2 rounded-xl transition"></div>
-            </figure>
-            <figure class="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white">
-                <img src="~/images/child%20traing%20.jpg" alt="Junior skills block"
-                     class="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-[1.06]" />
-                <div class="pointer-events-none absolute inset-0 ring-0 group-hover:ring-emerald-300/50 group-hover:ring-2 rounded-xl transition"></div>
-            </figure>
-        </div>
-        <p class="mt-2 text-xs text-zinc-500">* If an image doesn’t load, check the exact file name in <code>wwwroot/images</code> (including spaces).</p>
-    </div>
+        <h2 class="text-xl md:text-2xl font-extrabold tracking-tight mb-3">My rugby journey</h2>
 
-    <!-- Values (3D tiles) -->
-    <div class="grid gap-6 md:grid-cols-3">
-        <div class="tilt-3d rounded-2xl border border-zinc-200 bg-white p-6 shadow-[0_10px_25px_-10px_rgba(0,0,0,.15)]">
-            <div class="lift-z">
-                <h3 class="font-bold text-zinc-900">Player-first</h3>
-                <p class="mt-1 text-sm md:text-[15px] text-zinc-700">We adapt load and teaching style to the athlete in front of us.</p>
-            </div>
+        <div class="grid gap-3 sm:grid-cols-3">
+            <!-- 1 -->
+            <figure class="journey-card rounded-xl border border-zinc-200 bg-white">
+                <img src="@Url.Content("~/images/rugbyjourney1.jpg")" alt="Primary school — Glenwood Prep" />
+                <div class="overlay"></div>
+                <figcaption>
+                    Primary school days at Glenwood Prep, remain very special to me and I was privileged
+                    enough to get my 50 caps for the first team.
+                </figcaption>
+            </figure>
+
+            <!-- 2 -->
+            <figure class="journey-card rounded-xl border border-zinc-200 bg-white">
+                <img src="@Url.Content("~/images/rugbyjourney2.jpg")" alt="High school — DHS" />
+                <div class="overlay"></div>
+                <figcaption>
+                    Memorable high school journey at DHS with lots of competition from grade 8 and
+                    all the way to my Matric year
+                </figcaption>
+            </figure>
+
+            <!-- 3 -->
+            <figure class="journey-card rounded-xl border border-zinc-200 bg-white">
+                <img src="@Url.Content("~/images/rugbyjourney3.jpg")" alt="UKZN — Varsity Shield & Premier League" />
+                <div class="overlay"></div>
+                <figcaption>
+                    Currently playing Varsity Shield and Premier League Club rugby at UKZN
+                </figcaption>
+            </figure>
         </div>
-        <div class="tilt-3d rounded-2xl border border-zinc-200 bg-white p-6 shadow-[0_10px_25px_-10px_rgba(0,0,0,.15)]">
-            <div class="lift-z">
-                <h3 class="font-bold text-zinc-900">Position-specific</h3>
-                <p class="mt-1 text-sm md:text-[15px] text-zinc-700">Backs, forwards, kickers — each role has unique movement &amp; decisions.</p>
-            </div>
-        </div>
-        <div class="tilt-3d rounded-2xl border border-zinc-200 bg-white p-6 shadow-[0_10px_25px_-10px_rgba(0,0,0,.15)]">
-            <div class="lift-z">
-                <h3 class="font-bold text-zinc-900">Game-relevant</h3>
-                <p class="mt-1 text-sm md:text-[15px] text-zinc-700">Drills map to situations you’ll actually meet at speed.</p>
-            </div>
-        </div>
-    </div>
 
     <!-- CTA -->
     <div class="text-center">
